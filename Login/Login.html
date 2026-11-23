@@ -7,48 +7,42 @@
 <title>PharmaPOS Login</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,Helvetica,sans-serif}
-body{min-height:100vh;display:flex;align-items:center;justify-content:center;background:#020d20;padding:20px}
-.login-wrapper{width:100%;max-width:880px;padding:2px;border-radius:48px;background:linear-gradient(135deg,#32eaff,#293cce,#a34af5,#24dfff);box-shadow:0 0 35px rgba(0,180,255,.15)}
-.login-container{min-height:820px;padding:80px;border-radius:46px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#09b9d4,#173a91 45%,#a44fe5);position:relative;overflow:hidden}
-.login-card{width:100%;max-width:730px;padding:0 48px 50px;border:1.5px solid rgba(255,255,255,.45);border-radius:42px;background:rgba(255,255,255,.10);backdrop-filter:blur(25px);-webkit-backdrop-filter:blur(25px);box-shadow:0 10px 35px rgba(0,0,0,.12);position:relative;text-align:center}
-.user-icon{width:155px;height:155px;margin:-25px auto 12px;border-radius:50%;display:flex;justify-content:center;align-items:center;background:rgba(25,70,150,.65);border:2px solid rgba(255,255,255,.35);box-shadow:0 5px 20px rgba(0,0,0,.15)}
-.user-icon svg{width:85px;height:85px;fill:white}
-h1{color:white;font-size:58px;font-weight:700;margin-bottom:15px;text-shadow:0 3px 5px rgba(0,0,0,.2)}
-.subtitle{color:white;font-size:29px;margin-bottom:42px}
-.input-group{height:94px;width:100%;margin-bottom:26px;border-radius:25px;display:flex;align-items:center;padding:0 30px;background:rgba(255,255,255,.16);border:1.5px solid rgba(255,255,255,.35);box-shadow:inset 0 0 15px rgba(255,255,255,.04);transition:.3s}
-.input-group:focus-within{border-color:#fff;background:rgba(255,255,255,.22)}
-.input-group svg{width:42px;height:42px;fill:none;stroke:white;stroke-width:2;flex-shrink:0}
-.input-group input{flex:1;min-width:0;border:none;outline:none;background:transparent;color:white;font-size:29px;padding:0 30px}
+body{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:radial-gradient(circle at 15% 20%,#087eaa,#07152e 48%,#160d36)}
+.login-wrapper{width:100%;max-width:620px;padding:2px;border-radius:35px;background:linear-gradient(135deg,#32eaff,#293cce,#a34af5,#24dfff);box-shadow:0 0 40px rgba(0,180,255,.2)}
+.login-container{padding:55px 30px;border-radius:33px;background:linear-gradient(135deg,rgba(9,185,212,.75),rgba(23,58,145,.85) 48%,rgba(164,79,229,.8));backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+.login-card{width:100%;max-width:470px;margin:auto;padding:0 30px 35px;border:1px solid rgba(255,255,255,.4);border-radius:30px;background:rgba(255,255,255,.12);backdrop-filter:blur(25px);-webkit-backdrop-filter:blur(25px);box-shadow:0 12px 35px rgba(0,0,0,.2);text-align:center}
+.user-icon{width:115px;height:115px;margin:-22px auto 15px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(25,70,150,.65);border:2px solid rgba(255,255,255,.4);box-shadow:0 5px 20px rgba(0,0,0,.2)}
+.user-icon svg{width:65px;height:65px;fill:white}
+h1{color:white;font-size:39px;font-weight:700;margin-bottom:10px;text-shadow:0 3px 5px rgba(0,0,0,.2)}
+.subtitle{color:white;font-size:16px;margin-bottom:30px}
+.input-group{height:65px;width:100%;margin-bottom:18px;border-radius:16px;display:flex;align-items:center;padding:0 16px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.4);box-shadow:inset 0 0 15px rgba(255,255,255,.04);transition:.3s}
+.input-group:focus-within{border-color:#fff;background:rgba(255,255,255,.25);box-shadow:0 0 12px rgba(255,255,255,.15)}
+.input-group>svg{width:25px;height:25px;fill:none;stroke:white;stroke-width:2;flex-shrink:0}
+.input-group input{flex:1;min-width:0;border:none;outline:none;background:transparent;color:white;font-size:17px;padding:0 15px}
 .input-group input::placeholder{color:rgba(255,255,255,.9)}
-.eye-button{border:none;background:transparent;cursor:pointer;display:flex;align-items:center}
-.options{display:flex;justify-content:space-between;align-items:center;margin:35px 0 48px;color:white;font-size:25px;font-weight:600}
-.remember{display:flex;align-items:center;gap:16px;cursor:pointer}
-.remember input{width:33px;height:33px;accent-color:#fff;cursor:pointer}
-.forgot{color:white;text-decoration:none}
+.eye-button{border:0;background:transparent;cursor:pointer;display:flex;align-items:center;padding:5px}
+.eye-button svg{width:23px;height:23px;fill:none;stroke:white;stroke-width:2}
+.options{display:flex;justify-content:space-between;align-items:center;margin:24px 0 28px;color:white;font-size:14px;font-weight:600;gap:10px}
+.remember{display:flex;align-items:center;gap:8px;cursor:pointer;white-space:nowrap}
+.remember input{width:18px;height:18px;accent-color:#fff;cursor:pointer}
+.forgot{color:white;text-decoration:none;white-space:nowrap}
 .forgot:hover{text-decoration:underline}
-.login-btn{width:100%;height:96px;border:none;border-radius:25px;background:#fff;color:#080808;font-size:34px;font-weight:700;cursor:pointer;transition:.3s;box-shadow:0 5px 15px rgba(0,0,0,.12)}
-.login-btn:hover{background:#dffaff;transform:translateY(-3px)}
+.login-btn{width:100%;height:62px;border:none;border-radius:16px;background:#fff;color:#10213d;font-size:21px;font-weight:700;cursor:pointer;transition:.3s;box-shadow:0 5px 15px rgba(0,0,0,.15)}
+.login-btn:hover{background:#dffaff;transform:translateY(-2px)}
 .login-btn:active{transform:scale(.98)}
-.login-message{min-height:24px;margin-top:18px;font-size:17px;font-weight:600;color:white}
+.login-message{min-height:24px;margin-top:17px;font-size:14px;font-weight:600;color:white;line-height:1.5}
 .hidden{display:none!important}
-@media(max-width:768px){
-.login-wrapper{max-width:500px;border-radius:30px}
-.login-container{min-height:auto;padding:55px 18px;border-radius:28px}
-.login-card{padding:0 20px 30px;border-radius:28px}
-.user-icon{width:100px;height:100px;margin-top:-15px}
-.user-icon svg{width:55px;height:55px}
-h1{font-size:38px}
-.subtitle{font-size:17px;margin-bottom:28px}
-.input-group{height:65px;padding:0 15px;border-radius:17px;margin-bottom:18px}
-.input-group svg{width:27px;height:27px}
-.input-group input{font-size:17px;padding:0 15px}
-.options{font-size:14px;margin:25px 0 30px}
-.remember input{width:20px;height:20px}
-.login-btn{height:65px;font-size:23px;border-radius:17px}
-}
-@media(max-width:360px){
-.options{font-size:12px}
-.remember{gap:7px}
+@media(max-width:480px){
+.login-container{padding:40px 12px;border-radius:28px}
+.login-card{padding:0 18px 28px;border-radius:25px}
+.user-icon{width:90px;height:90px;margin-top:-15px}
+.user-icon svg{width:52px;height:52px}
+h1{font-size:32px}
+.subtitle{font-size:14px;margin-bottom:24px}
+.input-group{height:58px}
+.input-group input{font-size:15px;padding:0 10px}
+.options{font-size:12px;margin:20px 0 24px}
+.login-btn{height:57px;font-size:19px}
 }
 </style>
 </head>
@@ -64,29 +58,29 @@ h1{font-size:38px}
 <form id="loginForm">
 <div class="input-group">
 <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3-7 8-7s8 3 8 7"/></svg>
-<input type="text" id="username" name="username" placeholder="username" autocomplete="username" required>
+<input type="text" id="username" name="username" placeholder="User Name" autocomplete="username" required>
 </div>
 <div class="input-group">
 <svg viewBox="0 0 24 24"><rect x="3" y="10" width="18" height="12" rx="2"/><path d="M7 10V7a5 5 0 0110 0v3"/><path d="M12 15v3"/></svg>
-<input type="password" id="userpassword" name="userpassword" placeholder="userpassword" autocomplete="current-password" required>
-<button type="button" class="eye-button" onclick="togglePassword('userpassword')">
+<input type="password" id="userpassword" name="userpassword" placeholder="User Password" autocomplete="current-password" required>
+<button type="button" class="eye-button" onclick="togglePassword('userpassword')" aria-label="Show or hide password">
 <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
 </button>
 </div>
 <div class="options">
-<label class="remember"><input type="checkbox" name="RememberMe">Remember me</label>
-<a href="#" class="forgot">Forgot password?</a>
+<label class="remember"><input type="checkbox" id="rememberMe" name="RememberMe">Remember me</label>
+<a href="#" id="forgotPassword" class="forgot">Forgot Password?</a>
 </div>
 <button type="submit" class="login-btn">Login</button>
 </form>
 <form id="newUserForm" class="hidden">
 <div class="input-group">
 <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3-7 8-7s8 3 8 7"/></svg>
-<input type="text" id="newUsername" placeholder="Username" autocomplete="username" required>
+<input type="text" id="newUsername" placeholder="User Name" autocomplete="username" required>
 </div>
 <div class="input-group">
 <svg viewBox="0 0 24 24"><rect x="3" y="10" width="18" height="12" rx="2"/><path d="M7 10V7a5 5 0 0110 0v3"/></svg>
-<input type="password" id="newPassword" placeholder="Password" required>
+<input type="password" id="newPassword" placeholder="User Password" required>
 </div>
 <div class="input-group">
 <svg viewBox="0 0 24 24"><rect x="3" y="10" width="18" height="12" rx="2"/><path d="M7 10V7a5 5 0 0110 0v3"/></svg>
