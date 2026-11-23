@@ -3,25 +3,15 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#101827">
-<title>PharmaPOS - Login</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PharmaPOS Login</title>
 <link rel="stylesheet" href="Login.css">
+<script src="Login.js" defer></script>
 </head>
 <body>
-<div class="login-container">
-<div class="login-card">
-<div class="logo">P</div>
-<h1>PharmaPOS</h1>
-<p id="formTitle">Loading...</p>
-<form id="loginForm">
-<input type="text" id="username" placeholder="Username" autocomplete="username" required>
-<input type="password" id="password" placeholder="Password" autocomplete="current-password" required>
-<button type="submit">Sign In</button>
-</form>
-<p id="loginMessage"></p>
-</div>
-</div>
-<script src="Login.js"></script>
+<main class="login-container">
+<h2 id="formTitle">Loading...</h2>
+<p id="loginMessage">Please wait...</p>
+</main>
 </body>
 </html>
