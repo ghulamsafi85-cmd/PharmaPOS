@@ -1,29 +1,14 @@
 
-const SQLJS_URL = "https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.13.0/sql-wasm.js";
-const SQLJS_WASM_URL = "https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.13.0/";
-const container = document.querySelector(".login-container");
+let databaseReady = false;
 
 function loadScript(src) {
     return new Promise((resolve, reject) => {
         const script = document.createElement("script");
         script.src = src;
         script.onload = resolve;
-        script.onerror = () => reject(new Error("Unable to load: " + src));
+        script.onerror = () => reject(new Error("Failed to load " + src));
         document.head.appendChild(script);
     });
-}
-
-async function startLogin() {
-    try {
-        await loadScript(SQLJS_URL);
-        const originalInitSqlJs = window.initSqlJs;
-        window.initSqlJs = options => originalInitSqlJs({...options, locateFile: file => SQLJS_WASM_URL + file});
-        await loadScript("../Database/database.js");
-        await initDatabase();
-        showCorrectForm();
-    } catch (error) {
-        showMessage("Database initialization failed. Please check your internet connection.", true);
-    }
 }
 
 function showMessage(message, error = false) {
@@ -34,15 +19,24 @@ function showMessage(message, error = false) {
     }
 }
 
-function showCorrectForm() {
-    if (getUsersCount() === 0) {
-        showNewUserForm();
-    } else {
-        showLoginForm();
+async function initializeLogin() {
+    try {
+        await loadScript("../Database/sql-wasm.js");
+        await loadScript("../Database/database.js");
+        await initDatabase();
+        databaseReady = true;
+        if (getUsersCount() === 0) {
+            showNewUserForm();
+        } else {
+            showLoginForm();
+        }
+    } catch (error) {
+        showMessage("Database initialization failed. Please check the database files.", true);
     }
 }
 
 function showNewUserForm() {
+    const container = document.querySelector(".login-container");
     container.innerHTML = `
         <h2>Create Administrator</h2>
         <form id="newUserForm">
@@ -54,49 +48,46 @@ function showNewUserForm() {
         </form>`;
     document.getElementById("newUserForm").addEventListener("submit", event => {
         event.preventDefault();
+        if (!databaseReady) return;
         const username = document.getElementById("newUsername").value.trim();
         const password = document.getElementById("newPassword").value;
         const confirmPassword = document.getElementById("confirmPassword").value;
-        if (!username || !password) return showMessage("Please enter username and password.", true);
+        if (!username || !password) return showMessage("Enter username and password.", true);
         if (password !== confirmPassword) return showMessage("Passwords do not match.", true);
         try {
             createUser(username, password);
-            showMessage("User created successfully.");
-            showLoginForm();
+            showLoginForm("User created successfully. Please login.");
         } catch (error) {
             showMessage("Unable to create user. Username may already exist.", true);
         }
     });
 }
 
-function showLoginForm() {
+function showLoginForm(message = "") {
+    const container = document.querySelector(".login-container");
     container.innerHTML = `
-        <h2>Login</h2>
+        <h2>PharmaPOS Login</h2>
         <form id="loginForm">
             <input id="username" type="text" placeholder="Username" required>
             <input id="password" type="password" placeholder="Password" required>
             <button type="submit">Login</button>
             <p id="loginMessage"></p>
         </form>`;
+    if (message) showMessage(message);
     document.getElementById("loginForm").addEventListener("submit", event => {
         event.preventDefault();
         const username = document.getElementById("username").value.trim();
         const password = document.getElementById("password").value;
-        const user = checkUser(username, password);
-        if (user) {
-            showMessage("Login successful.");
+        try {
+            const user = checkUser(username, password);
+            if (!user) return showMessage("Invalid username or password.", true);
             sessionStorage.setItem("currentUserId", user.userid);
             sessionStorage.setItem("currentUsername", user.username);
-        } else {
-            showMessage("Invalid username or password.", true);
+            showMessage("Login successful.");
+        } catch (error) {
+            showMessage("Login failed. Please try again.", true);
         }
     });
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    if (!container) {
-        document.body.innerHTML = "<p>Login container not found.</p>";
-        return;
-    }
-    startLogin();
-});
+document.addEventListener("DOMContentLoaded", initializeLogin);
