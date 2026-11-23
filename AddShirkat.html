@@ -14,8 +14,8 @@ h2{text-align:center;color:#123e62;margin:0 0 14px;font-size:22px}
 input[type=text],input[type=email],input[type=number]{width:100%;height:43px;border:1px solid #b8cbd8;border-radius:8px;background:#f8fbfd;text-align:center;font-size:15px;color:#123e62;outline:none;padding:8px}
 input:focus{border-color:#087e8b;box-shadow:0 0 0 3px #087e8b20;background:white}
 input[readonly]{background:#eaf1f6;color:#075985;font-weight:bold}
-.image-area{height:135px;margin-top:9px;display:flex;justify-content:center;align-items:center;background:#f8fbfd;border:1px dashed #9bb5c5;border-radius:9px;overflow:hidden}
-#logoPreview{max-width:100%;max-height:125px;object-fit:contain}
+.image-area{height:180px;margin-top:9px;display:flex;justify-content:center;align-items:center;background:#f8fbfd;border:1px dashed #9bb5c5;border-radius:9px;overflow:hidden;padding:5px}
+#logoPreview{max-width:100%;max-height:170px;width:auto;height:auto;object-fit:contain}
 #imagePlaceholder{color:#78909c;font-size:13px}
 #imageInput{display:none}
 .buttons{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-top:10px}
@@ -88,11 +88,59 @@ placeholder.style.display="block";
 return;
 }
 logoData=new Uint8Array(data);
-const blob=new Blob([logoData],{type:"image/png"});
+const blob=new Blob([logoData],{type:"image/webp"});
 logoUrl=URL.createObjectURL(blob);
 img.src=logoUrl;
 img.style.display="block";
 placeholder.style.display="none";
+}
+function loadImage(file){
+return new Promise((resolve,reject)=>{
+if(window.createImageBitmap){
+createImageBitmap(file,{imageOrientation:"from-image"}).then(resolve).catch(()=>loadImageFallback(file).then(resolve).catch(reject));
+}else loadImageFallback(file).then(resolve).catch(reject);
+});
+}
+function loadImageFallback(file){
+return new Promise((resolve,reject)=>{
+const url=URL.createObjectURL(file);
+const img=new Image();
+img.onload=()=>{
+URL.revokeObjectURL(url);
+resolve({width:img.naturalWidth,height:img.naturalHeight,source:img,close:function(){}});
+};
+img.onerror=()=>{
+URL.revokeObjectURL(url);
+reject(new Error("This image format is not supported by your browser."));
+};
+img.src=url;
+});
+}
+async function compressImage(file){
+const bitmap=await loadImage(file);
+try{
+const maxSize=1920;
+const scale=Math.min(1,maxSize/Math.max(bitmap.width,bitmap.height));
+const width=Math.max(1,Math.round(bitmap.width*scale));
+const height=Math.max(1,Math.round(bitmap.height*scale));
+const canvas=document.createElement("canvas");
+canvas.width=width;
+canvas.height=height;
+const ctx=canvas.getContext("2d",{alpha:false});
+if(!ctx)throw new Error("Image processing is not supported.");
+ctx.fillStyle="#ffffff";
+ctx.fillRect(0,0,width,height);
+ctx.imageSmoothingEnabled=true;
+ctx.imageSmoothingQuality="high";
+ctx.drawImage(bitmap.source||bitmap,0,0,width,height);
+const blob=await new Promise((resolve,reject)=>{
+canvas.toBlob(result=>result?resolve(result):reject(new Error("WebP conversion failed.")),"image/webp",0.90);
+});
+if(blob.type!=="image/webp")throw new Error("WebP format is not supported by this browser.");
+return new Uint8Array(await blob.arrayBuffer());
+}finally{
+if(bitmap.close)bitmap.close();
+}
 }
 function clearImage(){
 logoData=null;
@@ -106,12 +154,18 @@ document.getElementById("imageInput").click();
 document.getElementById("imageInput").addEventListener("change",async function(){
 const file=this.files[0];
 if(!file)return;
-if(!file.type.startsWith("image/"))return showMessage("Please select a valid image.",true);
 try{
-logoData=new Uint8Array(await file.arrayBuffer());
-showLogo(logoData);
-showMessage("Image selected successfully.");
-}catch(e){showMessage("Unable to load image.",true)}
+showMessage("Reading and processing image...");
+const compressed=await compressImage(file);
+logoData=compressed;
+showLogo(compressed);
+showMessage("HD image processed and ready. Size: "+(compressed.length/1024).toFixed(1)+" KB");
+}catch(e){
+logoData=null;
+showLogo(null);
+this.value="";
+showMessage("Image processing failed: "+e.message,true);
+}
 });
 function clearFields(message=""){
 document.getElementById("shirkatid").value=nextId();
