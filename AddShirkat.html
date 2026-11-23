@@ -282,13 +282,7 @@ try{
 if(!window.initSqlJs)throw new Error("SQL.js library failed to load.");
 await initDatabase("./");
 db.run("CREATE TABLE IF NOT EXISTS Shirkat (shirkatid INTEGER PRIMARY KEY, shirkatname TEXT, mobile TEXT, email TEXT, address TEXT, logo BLOB)");
-if(getCount()>0){
-const r=db.exec("SELECT MIN(shirkatid) FROM Shirkat");
-readRecord(r[0].values[0][0]);
-showMessage("Company record loaded.");
-}else{
 clearFields("Database initialized successfully.");
-}
 }catch(e){showMessage("Database initialization failed: "+(e.message||e),true)}
 }
 startForm();
