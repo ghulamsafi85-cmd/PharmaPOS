@@ -6,67 +6,109 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Add New User</title>
 <style>
-*{box-sizing:border-box}
-body{margin:0;background:linear-gradient(135deg,#071b32,#123e62,#087e8b);font-family:Arial,sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:25px 12px;color:white}
-.user-card{width:100%;max-width:520px;background:rgba(255,255,255,.12);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);padding:20px;border-radius:18px;border:1px solid rgba(255,255,255,.25);box-shadow:0 12px 35px rgba(0,0,0,.25),inset 0 1px 1px rgba(255,255,255,.15);border-top:3px solid rgba(255,181,71,.8)}
-h2{text-align:center;color:#ffb547;margin:0 0 18px;font-size:22px;text-shadow:0 2px 8px rgba(0,0,0,.2)}
-.fields{display:flex;flex-direction:column;gap:9px}
-input{width:100%;height:43px;border:1px solid rgba(255,255,255,.3);border-radius:9px;background:rgba(255,255,255,.10);text-align:center;font-size:16px;color:white;outline:none;padding:8px;backdrop-filter:blur(8px);transition:.2s}
-input::placeholder{color:rgba(255,255,255,.72)}
-input:focus{border-color:#ffb547;background:rgba(255,255,255,.16);box-shadow:0 0 0 3px rgba(255,181,71,.15)}
-input[readonly]{background:rgba(255,255,255,.18);color:#ffcf80;font-weight:bold}
-.buttons{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
-button{height:43px;border:1px solid rgba(255,255,255,.3);border-radius:9px;color:white;font-size:13px;font-weight:bold;cursor:pointer;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 4px 12px rgba(0,0,0,.16),inset 0 1px 1px rgba(255,255,255,.15);transition:.2s}
-button:active{transform:scale(.96)}
-button:hover{filter:brightness(1.2);box-shadow:0 6px 16px rgba(0,0,0,.23)}
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,Helvetica,sans-serif}
+body{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:radial-gradient(circle at 15% 20%,#087eaa,#07152e 48%,#160d36);color:white}
+.user-wrapper{width:100%;max-width:620px;padding:2px;border-radius:30px;background:linear-gradient(135deg,#32eaff,#293cce,#a34af5,#24dfff);box-shadow:0 0 40px rgba(0,180,255,.2)}
+.user-container{padding:35px 20px;border-radius:28px;background:linear-gradient(135deg,rgba(9,185,212,.75),rgba(23,58,145,.85) 48%,rgba(164,79,229,.8));backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+.user-card{width:100%;max-width:470px;margin:auto;padding:25px 30px 28px;border:1px solid rgba(255,255,255,.4);border-radius:25px;background:rgba(255,255,255,.12);backdrop-filter:blur(25px);-webkit-backdrop-filter:blur(25px);box-shadow:0 12px 35px rgba(0,0,0,.2);text-align:center}
+h2{color:white;font-size:30px;font-weight:700;margin-bottom:25px;text-shadow:0 3px 5px rgba(0,0,0,.2)}
+.fields{display:flex;flex-direction:column;gap:0}
+.input-group{height:65px;width:100%;margin-bottom:18px;border-radius:16px;display:flex;align-items:center;padding:0 16px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.25)}
+.input-group>svg{width:25px;height:25px;fill:none;stroke:white;stroke-width:2;flex-shrink:0}
+.input-group input{flex:1;min-width:0;width:100%;height:100%;border:0!important;outline:0!important;box-shadow:none!important;background:transparent!important;color:#fff!important;-webkit-text-fill-color:#fff!important;caret-color:#fff;font-size:17px;padding:0 15px;text-align:left}
+.input-group input:focus,.input-group input:active{border:0!important;outline:0!important;box-shadow:none!important;background:transparent!important;color:#fff!important;-webkit-text-fill-color:#fff!important}
+.input-group input::placeholder{color:rgba(255,255,255,.85);-webkit-text-fill-color:rgba(255,255,255,.85)}
+.input-group input:-webkit-autofill,.input-group input:-webkit-autofill:hover,.input-group input:-webkit-autofill:focus{-webkit-text-fill-color:#fff!important;-webkit-box-shadow:0 0 0 1000px transparent inset!important;box-shadow:0 0 0 1000px transparent inset!important;transition:background-color 9999s ease-in-out 0s}
+.input-group input[readonly]{color:#fff!important;-webkit-text-fill-color:#fff!important;opacity:.85}
+.eye-button{border:0;background:transparent;cursor:pointer;display:flex;align-items:center;padding:5px;box-shadow:none}
+.eye-button svg{width:23px;height:23px;fill:none;stroke:white;stroke-width:2}
+.buttons{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:5px}
+.buttons button{width:100%;height:48px;border:1px solid rgba(255,255,255,.3);border-radius:12px;color:white;font-size:13px;font-weight:bold;cursor:pointer;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 4px 12px rgba(0,0,0,.16),inset 0 1px 1px rgba(255,255,255,.15);transition:.2s}
+.buttons button:active{transform:scale(.96)}
+.buttons button:hover{filter:brightness(1.2);box-shadow:0 6px 16px rgba(0,0,0,.23)}
+.buttons button:disabled{opacity:.45;cursor:not-allowed;filter:none}
 .add{background:rgba(8,126,139,.65)}
 .save{background:rgba(22,128,60,.65)}
 .next{background:rgba(37,99,235,.65)}
 .previous{background:rgba(124,58,237,.65)}
 .delete{background:rgba(220,53,69,.7)}
 .close{background:rgba(71,85,105,.7)}
-#message{text-align:center;min-height:20px;margin:12px 0 0;font-size:13px;font-weight:bold;color:#b9ffd0;overflow-wrap:anywhere}
-@media(max-width:380px){body{padding:12px 7px}.user-card{padding:13px}.buttons{gap:5px}button{font-size:11px;height:41px}input{height:41px}}
+#message{min-height:24px;margin-top:17px;font-size:14px;font-weight:600;color:white;line-height:1.5;overflow-wrap:anywhere}
+@media(max-width:480px){
+.user-container{padding:25px 10px;border-radius:25px}
+.user-card{padding:22px 15px 25px;border-radius:22px}
+h2{font-size:25px;margin-bottom:22px}
+.input-group{height:58px;margin-bottom:14px}
+.input-group input{font-size:15px;padding:0 10px}
+.buttons{gap:6px}
+.buttons button{height:43px;font-size:11px}
+#message{font-size:12px}
+}
 </style>
 </head>
 <body>
+<div class="user-wrapper">
+<div class="user-container">
 <section class="user-card">
 <h2>Add New User</h2>
 <div class="fields">
+<div class="input-group">
+<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10M7 12h6M7 16h4"/></svg>
 <input id="userid" type="number" placeholder="User ID" readonly>
-<input id="username" type="text" placeholder="Username" autocomplete="off">
-<input id="userpassword" type="password" placeholder="Password (leave blank to keep current)" autocomplete="new-password">
+</div>
+<div class="input-group">
+<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3-7 8-7s8 3 8 7"/></svg>
+<input id="username" type="text" placeholder="User Name" autocomplete="off">
+</div>
+<div class="input-group">
+<svg viewBox="0 0 24 24"><rect x="3" y="10" width="18" height="12" rx="2"/><path d="M7 10V7a5 5 0 0110 0v3M12 15v3"/></svg>
+<input id="userpassword" type="password" placeholder="User Password" autocomplete="new-password">
+<button type="button" class="eye-button" onclick="togglePassword()" aria-label="Show or hide password">
+<svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+</button>
+</div>
 </div>
 <div class="buttons">
-<button class="add" onclick="addNew()">➕ Add New</button>
-<button class="save" onclick="saveUser()">💾 Save/Edit</button>
-<button class="next" onclick="nextRecord()">⏭ Next Rec</button>
-<button class="previous" onclick="previousRecord()">⏮ Previous</button>
-<button class="delete" onclick="deleteUser()">🗑 Delete</button>
+<button class="add" onclick="addNew()" disabled>➕ Add New</button>
+<button class="save" onclick="saveUser()" disabled>💾 Save/Edit</button>
+<button class="next" onclick="nextRecord()" disabled>⏭ Next Rec</button>
+<button class="previous" onclick="previousRecord()" disabled>⏮ Previous</button>
+<button class="delete" onclick="deleteUser()" disabled>🗑 Delete</button>
 <button class="close" onclick="closeForm()">✖ Close</button>
 </div>
-<p id="message"></p>
+<p id="message">Loading database...</p>
 </section>
+</div>
+</div>
 <script src="./sql-wasm.js"></script>
 <script src="./Database/database.js"></script>
 <script>
 let currentId=null;
+let databaseReady=false;
 function showMessage(text,error=false){
 const m=document.getElementById("message");
 m.textContent=text;
-m.style.color=error?"#ffb3b3":"#b9ffd0";
+m.style.color=error?"#ffb3b3":"#ffffff";
 }
 function focusUsername(){
 document.getElementById("username").focus();
+}
+function togglePassword(){
+const input=document.getElementById("userpassword");
+input.type=input.type==="password"?"text":"password";
+}
+function setButtonsEnabled(enabled){
+document.querySelectorAll(".buttons button:not(.close)").forEach(button=>button.disabled=!enabled);
 }
 function nextId(){
 const r=db.exec("SELECT COALESCE(MAX(userid),0)+1 FROM users");
 return r[0].values[0][0];
 }
-function clearFields(message=""){
-document.getElementById("userid").value=nextId();
+function clearFields(message="",id=null){
+document.getElementById("userid").value=id===null?nextId():id;
 document.getElementById("username").value="";
 document.getElementById("userpassword").value="";
+document.getElementById("userpassword").type="password";
 currentId=null;
 if(message)showMessage(message);
 focusUsername();
@@ -80,17 +122,20 @@ const r=s.getAsObject();
 document.getElementById("userid").value=r.userid;
 document.getElementById("username").value=r.username;
 document.getElementById("userpassword").value="";
+document.getElementById("userpassword").type="password";
 currentId=r.userid;
 focusUsername();
 return true;
 }finally{s.free()}
 }
 function addNew(){
+if(!databaseReady)return;
 try{
 clearFields("Ready for a new user.");
 }catch(e){showMessage("Database error: "+e.message,true)}
 }
 async function saveUser(){
+if(!databaseReady)return;
 const id=Number(document.getElementById("userid").value);
 const username=document.getElementById("username").value.trim();
 const password=document.getElementById("userpassword").value;
@@ -119,6 +164,7 @@ showMessage("User saved successfully.");
 }catch(e){showMessage("Unable to save: "+e.message,true)}
 }
 function nextRecord(){
+if(!databaseReady)return;
 try{
 let id=null;
 if(currentId===null){
@@ -137,6 +183,7 @@ showMessage("Next record loaded.");
 }catch(e){showMessage("Database error: "+e.message,true)}
 }
 function previousRecord(){
+if(!databaseReady)return;
 try{
 let id=null;
 if(currentId===null){
@@ -155,6 +202,7 @@ showMessage("Previous record loaded.");
 }catch(e){showMessage("Database error: "+e.message,true)}
 }
 function deleteUser(){
+if(!databaseReady)return;
 try{
 const id=Number(document.getElementById("userid").value);
 if(!id||!confirm("Are you sure you want to delete this user?"))return;
@@ -171,7 +219,10 @@ async function startForm(){
 try{
 if(!window.initSqlJs)throw new Error("SQL.js library failed to load.");
 await initDatabase("./");
-clearFields("Database initialized successfully.");
+const id=nextId();
+databaseReady=true;
+setButtonsEnabled(true);
+clearFields("Database initialized successfully.",id);
 }catch(e){
 showMessage("Database initialization failed: "+(e.message||e),true);
 }
