@@ -17,12 +17,7 @@ input[readonly]{background:#eaf1f6;color:#075985;font-weight:bold}
 .buttons{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:9px}
 button{height:43px;border:0;border-radius:8px;color:white;font-size:13px;font-weight:bold;cursor:pointer;box-shadow:0 2px 5px #0002;transition:.15s}
 button:active{transform:scale(.97)}
-.add{background:#087e8b}
-.save{background:#16803c}
-.next{background:#2563eb}
-.previous{background:#7c3aed}
-.delete{background:#dc3545}
-.close{background:#475569}
+.add{background:#087e8b}.save{background:#16803c}.next{background:#2563eb}.previous{background:#7c3aed}.delete{background:#dc3545}.close{background:#475569}
 button:hover{filter:brightness(.92)}
 #message{text-align:center;min-height:20px;margin:10px 0 0;font-size:13px;font-weight:bold;color:#16803c}
 @media(max-width:380px){body{padding:12px 7px}.user-card{padding:13px}.buttons{gap:5px}button{font-size:11px;height:41px}input{height:41px}}
@@ -46,7 +41,7 @@ button:hover{filter:brightness(.92)}
 </div>
 <p id="message"></p>
 </section>
-<script src="Database/sql-wasm.js"></script>
+<script src="sql-wasm.js"></script>
 <script src="Database/database.js"></script>
 <script>
 let currentId=null;
@@ -66,14 +61,14 @@ document.getElementById("userpassword").value="";
 currentId=null;
 }
 function readRecord(id){
-const s=db.prepare("SELECT userid,username,userpassword FROM users WHERE userid=?");
+const s=db.prepare("SELECT userid,username FROM users WHERE userid=?");
 try{
 s.bind([id]);
 if(!s.step())return false;
 const r=s.getAsObject();
 document.getElementById("userid").value=r.userid;
 document.getElementById("username").value=r.username;
-document.getElementById("userpassword").value=r.userpassword;
+document.getElementById("userpassword").value="";
 currentId=r.userid;
 return true;
 }finally{s.free()}
@@ -83,19 +78,28 @@ clearFields();
 showMessage("Ready for a new user.");
 document.getElementById("username").focus();
 }
-function saveUser(){
+async function saveUser(){
 const id=Number(document.getElementById("userid").value);
 const username=document.getElementById("username").value.trim();
 const password=document.getElementById("userpassword").value;
-if(!id||!username||!password)return showMessage("Please enter username and password.",true);
+if(!id||!username)return showMessage("Please enter a username.",true);
 try{
-const exists=db.exec("SELECT userid FROM users WHERE userid="+id);
-if(exists.length&&exists[0].values.length){
+const exists=db.prepare("SELECT userid FROM users WHERE userid=?");
+let found=false;
+try{exists.bind([id]);found=exists.step()}finally{exists.free()}
+if(password){
+const hashedPassword=await hashPassword(password);
+if(found){
 const s=db.prepare("UPDATE users SET username=?,userpassword=? WHERE userid=?");
-try{s.run([username,password,id])}finally{s.free()}
+try{s.run([username,hashedPassword,id])}finally{s.free()}
 }else{
 const s=db.prepare("INSERT INTO users(userid,username,userpassword) VALUES(?,?,?)");
-try{s.run([id,username,password])}finally{s.free()}
+try{s.run([id,username,hashedPassword])}finally{s.free()}
+}
+}else{
+if(!found)return showMessage("Please enter a password for the new user.",true);
+const s=db.prepare("UPDATE users SET username=? WHERE userid=?");
+try{s.run([username,id])}finally{s.free()}
 }
 saveDatabase();
 readRecord(id);
@@ -105,25 +109,26 @@ showMessage("Unable to save. Username may already exist.",true);
 }
 }
 function nextRecord(){
-let r;
-if(currentId===null)r=db.exec("SELECT MIN(userid) FROM users");
-else{
+let id=null;
+if(currentId===null){
+const r=db.exec("SELECT MIN(userid) FROM users");
+if(r.length)id=r[0].values[0][0];
+}else{
 const s=db.prepare("SELECT MIN(userid) FROM users WHERE userid>?");
-try{s.bind([currentId]);r=s.step()?[[s.get()[0]]]:[]}finally{s.free()}
+try{s.bind([currentId]);if(s.step())id=s.get()[0]}finally{s.free()}
 }
-const id=r.length&&r[0].values?r[0].values[0][0]:r[0]?.[0];
-if(id===null||id===undefined)return showMessage("No next record found.",true);
+if(id===null)return showMessage("No next record found.",true);
 readRecord(id);
 showMessage("Record loaded.");
 }
 function previousRecord(){
-let id;
+let id=null;
 if(currentId===null){
 const r=db.exec("SELECT MAX(userid) FROM users");
-id=r[0].values[0][0];
+if(r.length)id=r[0].values[0][0];
 }else{
 const s=db.prepare("SELECT MAX(userid) FROM users WHERE userid<?");
-try{s.bind([currentId]);id=s.step()?s.get()[0]:null}finally{s.free()}
+try{s.bind([currentId]);if(s.step())id=s.get()[0]}finally{s.free()}
 }
 if(id===null)return showMessage("No previous record found.",true);
 readRecord(id);
@@ -143,7 +148,7 @@ window.parent.document.getElementById("MainPanel").innerHTML="";
 }
 async function startForm(){
 try{
-await initDatabase();
+await initDatabase("./");
 clearFields();
 document.getElementById("username").focus();
 }catch(e){
