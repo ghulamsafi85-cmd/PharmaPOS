@@ -1,0 +1,243 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Add Shirkat</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#edf2f7;font-family:Arial,sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:15px 10px}
+.card{width:100%;max-width:560px;background:white;padding:18px;border-radius:14px;box-shadow:0 5px 22px #123e6220;border-top:5px solid #087e8b}
+h2{text-align:center;color:#123e62;margin:0 0 14px;font-size:22px}
+.fields{display:flex;flex-direction:column;gap:7px}
+input[type=text],input[type=email],input[type=number]{width:100%;height:43px;border:1px solid #b8cbd8;border-radius:8px;background:#f8fbfd;text-align:center;font-size:15px;color:#123e62;outline:none;padding:8px}
+input:focus{border-color:#087e8b;box-shadow:0 0 0 3px #087e8b20;background:white}
+input[readonly]{background:#eaf1f6;color:#075985;font-weight:bold}
+.image-area{height:135px;margin-top:9px;display:flex;justify-content:center;align-items:center;background:#f8fbfd;border:1px dashed #9bb5c5;border-radius:9px;overflow:hidden}
+#logoPreview{max-width:100%;max-height:125px;object-fit:contain}
+#imagePlaceholder{color:#78909c;font-size:13px}
+#imageInput{display:none}
+.buttons{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-top:10px}
+button{height:44px;width:100%;border:0;border-radius:8px;color:white;font-size:12px;font-weight:bold;cursor:pointer;box-shadow:0 2px 5px #0002;transition:.15s;padding:4px 2px}
+button:active{transform:scale(.97)}
+button:disabled{opacity:.4;cursor:not-allowed;filter:grayscale(1)}
+.add{background:#087e8b}.save{background:#16803c}.next{background:#2563eb}.previous{background:#7c3aed}.delete{background:#dc3545}.close{background:#475569}.select{background:#0d9488}.clear{background:#64748b}
+button:hover:not(:disabled){filter:brightness(.9)}
+#message{text-align:center;min-height:20px;margin:10px 0 0;font-size:13px;font-weight:bold;color:#16803c;overflow-wrap:anywhere}
+@media(max-width:380px){body{padding:9px 6px}.card{padding:12px}.buttons{gap:5px}button{font-size:10px;height:42px}input[type=text],input[type=email],input[type=number]{height:41px;font-size:14px}}
+</style>
+</head>
+<body>
+<section class="card">
+<h2>Add Shirkat</h2>
+<div class="fields">
+<input id="shirkatid" type="number" placeholder="Company ID" readonly>
+<input id="shirkatname" type="text" placeholder="Company Name" autocomplete="off">
+<input id="mobile" type="text" placeholder="Mobile Number" autocomplete="off">
+<input id="email" type="email" placeholder="Email Address" autocomplete="off">
+<input id="address" type="text" placeholder="Company Address" autocomplete="off">
+</div>
+<div class="image-area">
+<img id="logoPreview" style="display:none">
+<span id="imagePlaceholder">Company Logo</span>
+</div>
+<input id="imageInput" type="file" accept="image/*">
+<div class="buttons">
+<button class="add" id="addButton" onclick="addNew()">➕ Add New</button>
+<button class="save" onclick="saveShirkat()">💾 Save/Edit</button>
+<button class="next" onclick="nextRecord()">⏭ Next</button>
+<button class="previous" onclick="previousRecord()">⏮ Previous</button>
+<button class="delete" onclick="deleteShirkat()">🗑 Delete</button>
+<button class="close" onclick="closeForm()">✖ Close</button>
+<button class="select" onclick="selectImage()">🖼 Select Image</button>
+<button class="clear" onclick="clearImage()">🧹 Clear Image</button>
+</div>
+<p id="message"></p>
+</section>
+<script src="./sql-wasm.js"></script>
+<script src="./Database/database.js"></script>
+<script>
+let currentId=null;
+let logoData=null;
+let logoUrl=null;
+function showMessage(message,error=false){
+const m=document.getElementById("message");
+m.textContent=message;
+m.style.color=error?"#dc3545":"#16803c";
+}
+function getCount(){
+const r=db.exec("SELECT COUNT(*) FROM Shirkat");
+return r.length?r[0].values[0][0]:0;
+}
+function nextId(){
+const r=db.exec("SELECT COALESCE(MAX(shirkatid),0)+1 FROM Shirkat");
+return r[0].values[0][0];
+}
+function updateAddButton(){
+document.getElementById("addButton").disabled=getCount()>=1||Number(document.getElementById("shirkatid").value)>1;
+}
+function showLogo(data){
+const img=document.getElementById("logoPreview");
+const placeholder=document.getElementById("imagePlaceholder");
+if(logoUrl){URL.revokeObjectURL(logoUrl);logoUrl=null}
+if(!data||!data.length){
+img.style.display="none";
+img.removeAttribute("src");
+placeholder.style.display="block";
+return;
+}
+logoData=new Uint8Array(data);
+const blob=new Blob([logoData],{type:"image/png"});
+logoUrl=URL.createObjectURL(blob);
+img.src=logoUrl;
+img.style.display="block";
+placeholder.style.display="none";
+}
+function clearImage(){
+logoData=null;
+showLogo(null);
+document.getElementById("imageInput").value="";
+showMessage("Image cleared.");
+}
+function selectImage(){
+document.getElementById("imageInput").click();
+}
+document.getElementById("imageInput").addEventListener("change",async function(){
+const file=this.files[0];
+if(!file)return;
+if(!file.type.startsWith("image/"))return showMessage("Please select a valid image.",true);
+try{
+logoData=new Uint8Array(await file.arrayBuffer());
+showLogo(logoData);
+showMessage("Image selected successfully.");
+}catch(e){showMessage("Unable to load image.",true)}
+});
+function clearFields(message=""){
+document.getElementById("shirkatid").value=nextId();
+document.getElementById("shirkatname").value="";
+document.getElementById("mobile").value="";
+document.getElementById("email").value="";
+document.getElementById("address").value="";
+currentId=null;
+logoData=null;
+showLogo(null);
+document.getElementById("imageInput").value="";
+updateAddButton();
+document.getElementById("shirkatname").focus();
+if(message)showMessage(message);
+}
+function readRecord(id){
+const s=db.prepare("SELECT shirkatid,shirkatname,mobile,email,address,logo FROM Shirkat WHERE shirkatid=?");
+try{
+s.bind([id]);
+if(!s.step())return false;
+const r=s.getAsObject();
+document.getElementById("shirkatid").value=r.shirkatid;
+document.getElementById("shirkatname").value=r.shirkatname||"";
+document.getElementById("mobile").value=r.mobile||"";
+document.getElementById("email").value=r.email||"";
+document.getElementById("address").value=r.address||"";
+currentId=r.shirkatid;
+logoData=r.logo?new Uint8Array(r.logo):null;
+showLogo(logoData);
+document.getElementById("imageInput").value="";
+updateAddButton();
+document.getElementById("shirkatname").focus();
+return true;
+}finally{s.free()}
+}
+function addNew(){
+try{
+if(getCount()>=1)return showMessage("Only one company record is allowed.",true);
+clearFields("Ready to add company.");
+}catch(e){showMessage("Database error.",true)}
+}
+function saveShirkat(){
+const id=Number(document.getElementById("shirkatid").value);
+const name=document.getElementById("shirkatname").value.trim();
+const mobile=document.getElementById("mobile").value.trim();
+const email=document.getElementById("email").value.trim();
+const address=document.getElementById("address").value.trim();
+if(!name)return showMessage("Please enter company name.",true);
+try{
+if(currentId===null){
+if(getCount()>=1||id!==1)return showMessage("Only one company record is allowed.",true);
+const s=db.prepare("INSERT INTO Shirkat(shirkatid,shirkatname,mobile,email,address,logo) VALUES(?,?,?,?,?,?)");
+try{s.run([1,name,mobile,email,address,logoData])}finally{s.free()}
+}else{
+const s=db.prepare("UPDATE Shirkat SET shirkatname=?,mobile=?,email=?,address=?,logo=? WHERE shirkatid=?");
+try{s.run([name,mobile,email,address,logoData,currentId])}finally{s.free()}
+}
+saveDatabase();
+readRecord(1);
+showMessage("Company saved successfully.");
+}catch(e){showMessage("Unable to save company: "+e.message,true)}
+}
+function nextRecord(){
+try{
+let id=null;
+if(currentId===null){
+const r=db.exec("SELECT MIN(shirkatid) FROM Shirkat");
+if(r.length)id=r[0].values[0][0];
+}else{
+const s=db.prepare("SELECT MIN(shirkatid) FROM Shirkat WHERE shirkatid>?");
+try{s.bind([currentId]);if(s.step())id=s.get()[0]}finally{s.free()}
+}
+if(id===null){
+clearFields("No next record. Company ID is "+nextId()+".");
+return;
+}
+readRecord(id);
+showMessage("Next record loaded.");
+}catch(e){showMessage("Database error.",true)}
+}
+function previousRecord(){
+try{
+let id=null;
+if(currentId===null){
+const r=db.exec("SELECT MAX(shirkatid) FROM Shirkat");
+if(r.length)id=r[0].values[0][0];
+}else{
+const s=db.prepare("SELECT MAX(shirkatid) FROM Shirkat WHERE shirkatid<?");
+try{s.bind([currentId]);if(s.step())id=s.get()[0]}finally{s.free()}
+}
+if(id===null){
+clearFields("First record reached. Company ID is "+nextId()+".");
+return;
+}
+readRecord(id);
+showMessage("Previous record loaded.");
+}catch(e){showMessage("Database error.",true)}
+}
+function deleteShirkat(){
+try{
+if(currentId===null)return showMessage("No company record selected.",true);
+if(!confirm("Are you sure you want to delete this company?"))return;
+const s=db.prepare("DELETE FROM Shirkat WHERE shirkatid=?");
+try{s.run([currentId])}finally{s.free()}
+saveDatabase();
+clearFields("Company deleted successfully.");
+}catch(e){showMessage("Delete failed: "+e.message,true)}
+}
+function closeForm(){
+window.parent.document.getElementById("MainPanel").innerHTML="";
+}
+async function startForm(){
+try{
+if(!window.initSqlJs)throw new Error("SQL.js library failed to load.");
+await initDatabase("./");
+db.run("CREATE TABLE IF NOT EXISTS Shirkat (shirkatid INTEGER PRIMARY KEY, shirkatname TEXT, mobile TEXT, email TEXT, address TEXT, logo BLOB)");
+if(getCount()>0){
+const r=db.exec("SELECT MIN(shirkatid) FROM Shirkat");
+readRecord(r[0].values[0][0]);
+showMessage("Company record loaded.");
+}else{
+clearFields("Database initialized successfully.");
+}
+}catch(e){showMessage("Database initialization failed: "+(e.message||e),true)}
+}
+startForm();
+</script>
+</body>
+</html>
