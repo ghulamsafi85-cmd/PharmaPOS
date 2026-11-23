@@ -7,14 +7,15 @@
 <title>PharmaPOS Dashboard</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#071b32,#123e62,#087e8b);min-height:100vh;overflow:hidden;color:white}
+html,body{width:100%;height:100%;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:linear-gradient(135deg,#071b32,#123e62,#087e8b);overflow:hidden;color:white}
 .header{height:60px;background:rgba(255,255,255,.10);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,255,255,.2);color:#ffb547;display:flex;align-items:center;padding:0 18px;gap:15px;font-size:22px;font-weight:bold;box-shadow:0 4px 20px rgba(0,0,0,.15);position:relative;z-index:20}
 .hamburger{width:40px;height:40px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:5px;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.25);border-radius:9px;cursor:pointer;flex-shrink:0}
 .hamburger span{display:block;width:21px;height:2px;background:#ffb547;border-radius:3px}
-.layout{display:flex;height:calc(100vh - 60px);align-items:stretch;gap:10px;padding:10px;position:relative}
-.sidebar{width:210px;flex-shrink:0;background:rgba(255,255,255,.10);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.2);border-radius:16px;padding:12px;display:none;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.2);position:absolute;top:10px;left:10px;bottom:10px;z-index:15}
+.layout{display:flex;width:100%;height:calc(100vh - 60px);position:relative;overflow:hidden}
+.sidebar{width:210px;flex-shrink:0;background:rgba(255,255,255,.10);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:12px;display:none;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.2);position:absolute;top:10px;left:10px;bottom:10px;z-index:15}
 .sidebar.show{display:flex}
-.submenu{width:220px;flex-shrink:0;background:rgba(255,255,255,.13);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.2);border-radius:16px;padding:12px;display:none;position:absolute;left:230px;top:10px;z-index:16;box-shadow:0 8px 32px rgba(0,0,0,.2)}
+.submenu{width:220px;background:rgba(255,255,255,.13);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:12px;display:none;position:absolute;left:230px;top:10px;z-index:16;box-shadow:0 8px 32px rgba(0,0,0,.2)}
 .submenu.show{display:block}
 .menu-button{width:100%;padding:14px 10px;background:rgba(255,255,255,.09);color:#ffb547;border:1px solid rgba(255,255,255,.16);border-bottom:1px solid rgba(255,181,71,.5);border-radius:9px;text-align:left;font-size:15px;font-weight:bold;cursor:pointer;transition:.25s}
 .menu-button:hover,.menu-button.active{background:rgba(255,255,255,.2);border-color:#ffb547;box-shadow:0 4px 15px rgba(0,0,0,.15)}
@@ -23,9 +24,15 @@ body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#07
 .sub-button{width:100%;padding:13px 8px;margin-bottom:7px;background:rgba(18,62,98,.55);color:#ffb547;border:1px solid rgba(255,255,255,.2);border-radius:9px;text-align:left;font-size:14px;font-weight:bold;cursor:pointer;transition:.25s;backdrop-filter:blur(10px)}
 .sub-button:last-child{margin-bottom:0}
 .sub-button:hover{background:rgba(8,126,139,.75);color:white;border-color:#ffb547;transform:translateX(3px);box-shadow:0 4px 14px rgba(0,0,0,.15)}
-.main-panel{width:100%;flex:1;min-width:0;background:rgba(255,255,255,.10);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.2);border-radius:16px;padding:20px;overflow:auto;box-shadow:0 8px 32px rgba(0,0,0,.2)}
-.main-panel iframe{border-radius:12px}
-@media(max-width:600px){.layout{gap:5px;padding:5px}.sidebar{width:165px;padding:8px;border-radius:10px;left:5px;top:5px;bottom:5px}.submenu{width:180px;padding:8px;border-radius:10px;left:175px;top:5px}.menu-button,.sub-button,.logout-button{font-size:12px;padding:12px 5px}.sub-button{margin-bottom:5px}.main-panel{padding:8px;border-radius:10px}.header{font-size:19px;padding:0 12px;gap:12px}}
+.main-panel{display:block;flex:1;width:100%;min-width:0;height:100%;margin:0;padding:0;border:0;border-radius:0;overflow:hidden;background:transparent}
+.main-panel iframe{display:block;width:100%;height:100%;min-height:0;border:0;border-radius:0;background:transparent}
+@media(max-width:600px){
+.header{font-size:19px;padding:0 12px;gap:12px}
+.sidebar{width:165px;padding:8px;border-radius:10px;left:5px;top:5px;bottom:5px}
+.submenu{width:180px;padding:8px;border-radius:10px;left:175px;top:5px}
+.menu-button,.sub-button,.logout-button{font-size:12px;padding:12px 5px}
+.sub-button{margin-bottom:5px}
+}
 </style>
 </head>
 <body>
@@ -68,7 +75,11 @@ document.getElementById("masterArrow").textContent=opened?"‹":"›";
 }
 function openForm(file){
 const panel=document.getElementById("MainPanel");
-panel.innerHTML='<iframe src="./'+file+'" style="width:100%;height:100%;min-height:500px;border:0;background:transparent"></iframe>';
+panel.innerHTML="";
+const frame=document.createElement("iframe");
+frame.src="./"+file;
+frame.title=file;
+panel.appendChild(frame);
 document.getElementById("masterSubMenu").classList.remove("show");
 document.getElementById("sidebar").classList.remove("show");
 document.getElementById("masterButton").classList.remove("active");
