@@ -19,13 +19,12 @@ h2{color:white;font-size:30px;font-weight:700;margin-bottom:25px;text-shadow:0 3
 .input-group input:focus,.input-group input:active{border:0!important;outline:0!important;box-shadow:none!important;background:transparent!important;color:#fff!important;-webkit-text-fill-color:#fff!important}
 .input-group input::placeholder{color:rgba(255,255,255,.85);-webkit-text-fill-color:rgba(255,255,255,.85)}
 .input-group input:-webkit-autofill,.input-group input:-webkit-autofill:hover,.input-group input:-webkit-autofill:focus{-webkit-text-fill-color:#fff!important;-webkit-box-shadow:0 0 0 1000px transparent inset!important;box-shadow:0 0 0 1000px transparent inset!important;transition:background-color 9999s ease-in-out 0s}
-.input-group input[readonly]{color:#fff!important;-webkit-text-fill-color:#fff!important;opacity:.85}
 .eye-button{border:0;background:transparent;cursor:pointer;display:flex;align-items:center;padding:5px;box-shadow:none}
 .eye-button svg{width:23px;height:23px;fill:none;stroke:white;stroke-width:2}
 .buttons{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:5px}
 .buttons button{width:100%;height:48px;border:1px solid rgba(255,255,255,.3);border-radius:12px;color:white;font-size:13px;font-weight:bold;cursor:pointer;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 4px 12px rgba(0,0,0,.16),inset 0 1px 1px rgba(255,255,255,.15);transition:.2s}
 .buttons button:active{transform:scale(.96)}
-.buttons button:hover{filter:brightness(1.2);box-shadow:0 6px 16px rgba(0,0,0,.23)}
+.buttons button:hover{filter:brightness(1.2)}
 .buttons button:disabled{opacity:.45;cursor:not-allowed;filter:none}
 .add{background:rgba(8,126,139,.65)}
 .save{background:rgba(22,128,60,.65)}
@@ -63,7 +62,7 @@ h2{font-size:25px;margin-bottom:22px}
 <div class="input-group">
 <svg viewBox="0 0 24 24"><rect x="3" y="10" width="18" height="12" rx="2"/><path d="M7 10V7a5 5 0 0110 0v3M12 15v3"/></svg>
 <input id="userpassword" type="password" placeholder="User Password" autocomplete="new-password">
-<button type="button" class="eye-button" onclick="togglePassword()" aria-label="Show or hide password">
+<button type="button" class="eye-button" onclick="togglePassword()">
 <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
 </button>
 </div>
@@ -76,7 +75,7 @@ h2{font-size:25px;margin-bottom:22px}
 <button class="delete" onclick="deleteUser()" disabled>🗑 Delete</button>
 <button class="close" onclick="closeForm()">✖ Close</button>
 </div>
-<p id="message">Loading database...</p>
+<p id="message">Preparing database...</p>
 </section>
 </div>
 </div>
@@ -130,9 +129,8 @@ return true;
 }
 function addNew(){
 if(!databaseReady)return;
-try{
-clearFields("Ready for a new user.");
-}catch(e){showMessage("Database error: "+e.message,true)}
+try{clearFields("Ready for a new user.")}
+catch(e){showMessage("Database error: "+e.message,true)}
 }
 async function saveUser(){
 if(!databaseReady)return;
@@ -174,10 +172,7 @@ if(r.length)id=r[0].values[0][0];
 const s=db.prepare("SELECT MIN(userid) FROM users WHERE userid>?");
 try{s.bind([currentId]);if(s.step())id=s.get()[0]}finally{s.free()}
 }
-if(id===null){
-clearFields("Last record reached. Ready for a new user.");
-return;
-}
+if(id===null)return clearFields("Last record reached. Ready for a new user.");
 readRecord(id);
 showMessage("Next record loaded.");
 }catch(e){showMessage("Database error: "+e.message,true)}
@@ -193,10 +188,7 @@ if(r.length)id=r[0].values[0][0];
 const s=db.prepare("SELECT MAX(userid) FROM users WHERE userid<?");
 try{s.bind([currentId]);if(s.step())id=s.get()[0]}finally{s.free()}
 }
-if(id===null){
-clearFields("First record reached. Ready for a new user.");
-return;
-}
+if(id===null)return clearFields("First record reached. Ready for a new user.");
 readRecord(id);
 showMessage("Previous record loaded.");
 }catch(e){showMessage("Database error: "+e.message,true)}
@@ -218,11 +210,16 @@ window.parent.document.getElementById("MainPanel").innerHTML="";
 async function startForm(){
 try{
 if(!window.initSqlJs)throw new Error("SQL.js library failed to load.");
-await initDatabase("./");
+if(!db){
+sqlite=await window.initSqlJs({locateFile:file=>"./"+file});
+const savedData=localStorage.getItem("PharmaPOS.db");
+db=savedData?new sqlite.Database(base64ToBytes(savedData)):new sqlite.Database();
+db.run("CREATE TABLE IF NOT EXISTS users (userid INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT NOT NULL UNIQUE, userpassword TEXT NOT NULL)");
+}
 const id=nextId();
 databaseReady=true;
 setButtonsEnabled(true);
-clearFields("Database initialized successfully.",id);
+clearFields("Ready.",id);
 }catch(e){
 showMessage("Database initialization failed: "+(e.message||e),true);
 }
