@@ -11,9 +11,14 @@ body{margin:0;background:#edf2f7;font-family:Arial,sans-serif;min-height:100vh;d
 .card{width:100%;max-width:560px;background:white;padding:18px;border-radius:14px;box-shadow:0 5px 22px #123e6220;border-top:5px solid #087e8b}
 h2{text-align:center;color:#123e62;margin:0 0 14px;font-size:22px}
 .fields{display:flex;flex-direction:column;gap:7px}
-input[type=text],input[type=email],input[type=number]{width:100%;height:43px;border:1px solid #b8cbd8;border-radius:8px;background:#f8fbfd;text-align:center;font-size:15px;color:#123e62;outline:none;padding:8px}
-input:focus{border-color:#087e8b;box-shadow:0 0 0 3px #087e8b20;background:white}
-input[readonly]{background:#eaf1f6;color:#075985;font-weight:bold}
+.input-group{height:43px;width:100%;display:flex;align-items:center;padding:0 12px;border:1px solid #b8cbd8;border-radius:8px;background:#f8fbfd;transition:.2s}
+.input-group:focus-within{border-color:#087e8b;box-shadow:0 0 0 3px #087e8b20;background:white}
+.input-group>svg{width:21px;height:21px;fill:none;stroke:#123e62;stroke-width:2;flex-shrink:0}
+.input-group input{flex:1;min-width:0;width:100%;height:100%;border:0!important;outline:0!important;box-shadow:none!important;background:transparent!important;color:#123e62!important;-webkit-text-fill-color:#123e62!important;caret-color:#087e8b;font-size:15px;padding:0 12px;text-align:center}
+.input-group input:focus,.input-group input:active{border:0!important;outline:0!important;box-shadow:none!important;background:transparent!important;color:#123e62!important;-webkit-text-fill-color:#123e62!important}
+.input-group input::placeholder{color:#78909c;-webkit-text-fill-color:#78909c;opacity:1}
+.input-group input[readonly]{color:#075985!important;-webkit-text-fill-color:#075985!important;font-weight:bold;cursor:default}
+.input-group input:-webkit-autofill,.input-group input:-webkit-autofill:hover,.input-group input:-webkit-autofill:focus{-webkit-text-fill-color:#123e62!important;-webkit-box-shadow:0 0 0 1000px transparent inset!important;box-shadow:0 0 0 1000px transparent inset!important;transition:background-color 9999s ease-in-out 0s}
 .image-area{height:180px;margin-top:9px;display:flex;justify-content:center;align-items:center;background:#f8fbfd;border:1px dashed #9bb5c5;border-radius:9px;overflow:hidden;padding:5px}
 #logoPreview{max-width:100%;max-height:170px;width:auto;height:auto;object-fit:contain}
 #imagePlaceholder{color:#78909c;font-size:13px}
@@ -24,18 +29,33 @@ button:active{transform:scale(.97)}
 .add{background:#087e8b}.save{background:#16803c}.next{background:#2563eb}.previous{background:#7c3aed}.delete{background:#dc3545}.close{background:#475569}.select{background:#0d9488}.clear{background:#64748b}
 button:hover{filter:brightness(.9)}
 #message{text-align:center;min-height:20px;margin:10px 0 0;font-size:13px;font-weight:bold;color:#16803c;overflow-wrap:anywhere}
-@media(max-width:380px){body{padding:9px 6px}.card{padding:12px}.buttons{gap:5px}button{font-size:10px;height:42px}input[type=text],input[type=email],input[type=number]{height:41px;font-size:14px}}
+@media(max-width:380px){body{padding:9px 6px}.card{padding:12px}.buttons{gap:5px}button{font-size:10px;height:42px}.input-group{height:41px}.input-group input{font-size:14px;padding:0 8px}}
 </style>
 </head>
 <body>
 <section class="card">
 <h2>Add Shirkat</h2>
 <div class="fields">
+<div class="input-group">
+<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10M7 12h6M7 16h4"/></svg>
 <input id="shirkatid" type="number" placeholder="Company ID" readonly>
+</div>
+<div class="input-group">
+<svg viewBox="0 0 24 24"><path d="M3 21V7l9-4 9 4v14M3 21h18M8 10h2m4 0h2M8 14h2m4 0h2M10 21v-4h4v4"/></svg>
 <input id="shirkatname" type="text" placeholder="Company Name" autocomplete="off">
+</div>
+<div class="input-group">
+<svg viewBox="0 0 24 24"><path d="M5 3h4l2 5-3 2a16 16 0 006 6l2-3 5 2v4a2 2 0 01-2 2A17 17 0 013 5a2 2 0 012-2z"/></svg>
 <input id="mobile" type="text" placeholder="Mobile Number" autocomplete="off">
+</div>
+<div class="input-group">
+<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
 <input id="email" type="email" placeholder="Email Address" autocomplete="off">
+</div>
+<div class="input-group">
+<svg viewBox="0 0 24 24"><path d="M12 22s8-7 8-13a8 8 0 10-16 0c0 6 8 13 8 13z"/><circle cx="12" cy="9" r="2.5"/></svg>
 <input id="address" type="text" placeholder="Company Address" autocomplete="off">
+</div>
 </div>
 <div class="image-area">
 <img id="logoPreview" style="display:none">
