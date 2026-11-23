@@ -93,6 +93,25 @@ h1{font-size:32px}
 </div>
 </div>
 </div>
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/13.4.0/firebase-app.js";
+import {getAuth} from "https://www.gstatic.com/firebasejs/13.4.0/firebase-auth.js";
+import {getFirestore} from "https://www.gstatic.com/firebasejs/13.4.0/firebase-firestore.js";
+const firebaseConfig={
+apiKey:"AIzaSyBQqJcholRsKhj95QzHcnnQv-oWcoM0KBQ",
+authDomain:"pharmapos-896c2.firebaseapp.com",
+projectId:"pharmapos-896c2",
+storageBucket:"pharmapos-896c2.firebasestorage.app",
+messagingSenderId:"55456315025",
+appId:"1:55456315025:web:8dfe66fb99b61c8b99b130",
+measurementId:"G-6B9L22TG3Z"
+};
+const firebaseApp=initializeApp(firebaseConfig);
+window.firebaseAuth=getAuth(firebaseApp);
+window.firebaseDb=getFirestore(firebaseApp);
+window.firebaseReady=true;
+window.dispatchEvent(new Event("firebase-ready"));
+</script>
 <script src="./Login.js"></script>
 </body>
 </html>
