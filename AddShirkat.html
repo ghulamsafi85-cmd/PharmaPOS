@@ -20,7 +20,7 @@ h2{text-align:center;color:#123e62;margin:0 0 14px;font-size:22px}
 .input-group input[readonly]{color:#075985!important;-webkit-text-fill-color:#075985!important;font-weight:bold;cursor:default}
 .input-group input:-webkit-autofill,.input-group input:-webkit-autofill:hover,.input-group input:-webkit-autofill:focus{-webkit-text-fill-color:#123e62!important;-webkit-box-shadow:0 0 0 1000px transparent inset!important;box-shadow:0 0 0 1000px transparent inset!important;transition:background-color 9999s ease-in-out 0s}
 .image-area{height:180px;margin-top:9px;display:flex;justify-content:center;align-items:center;background:#f8fbfd;border:1px dashed #9bb5c5;border-radius:9px;overflow:hidden;padding:5px}
-#logoPreview{max-width:100%;max-height:170px;width:auto;height:auto;object-fit:contain}
+#logoPreview{max-width:100%;max-height:170px;width:auto;height:auto;object-fit:contain;cursor:zoom-in;touch-action:manipulation}
 #imagePlaceholder{color:#78909c;font-size:13px}
 #imageInput{display:none}
 .buttons{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-top:10px}
@@ -29,6 +29,13 @@ button:active{transform:scale(.97)}
 .add{background:#087e8b}.save{background:#16803c}.next{background:#2563eb}.previous{background:#7c3aed}.delete{background:#dc3545}.close{background:#475569}.select{background:#0d9488}.clear{background:#64748b}
 button:hover{filter:brightness(.9)}
 #message{text-align:center;min-height:20px;margin:10px 0 0;font-size:13px;font-weight:bold;color:#16803c;overflow-wrap:anywhere}
+#imageViewer{display:none;position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;background:#05080d;z-index:99999;align-items:center;justify-content:center;padding:58px 8px 12px;touch-action:manipulation}
+#imageViewer.active{display:flex}
+#fullImage{display:block;max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain}
+.viewer-actions{position:absolute;top:10px;right:10px;left:10px;display:flex;justify-content:flex-end;gap:9px;z-index:2}
+.viewer-actions button{width:auto;min-width:94px;height:42px;padding:0 14px;font-size:13px}
+.viewer-download{background:#16803c}
+.viewer-close{background:#dc3545}
 @media(max-width:380px){body{padding:9px 6px}.card{padding:12px}.buttons{gap:5px}button{font-size:10px;height:42px}.input-group{height:41px}.input-group input{font-size:14px;padding:0 8px}}
 </style>
 </head>
@@ -74,6 +81,13 @@ button:hover{filter:brightness(.9)}
 </div>
 <p id="message"></p>
 </section>
+<div id="imageViewer" aria-hidden="true">
+<div class="viewer-actions">
+<button class="viewer-download" type="button" onclick="downloadCompanyImage()">⬇ Download</button>
+<button class="viewer-close" type="button" onclick="closeImageViewer()">✖ Close</button>
+</div>
+<img id="fullImage" alt="Company Logo Full HD">
+</div>
 <script src="./sql-wasm.js"></script>
 <script src="./Database/database.js"></script>
 <script>
@@ -110,6 +124,45 @@ img.src=logoUrl;
 img.style.display="block";
 placeholder.style.display="none";
 }
+document.getElementById("logoPreview").addEventListener("dblclick",openImageViewer);
+document.getElementById("logoPreview").addEventListener("touchend",function(e){
+const now=Date.now();
+if(this._lastTap&&now-this._lastTap<350){e.preventDefault();openImageViewer()}
+this._lastTap=now;
+},{passive:false});
+function openImageViewer(){
+if(!logoData||!logoData.length)return;
+const viewer=document.getElementById("imageViewer");
+const full=document.getElementById("fullImage");
+const blob=new Blob([logoData],{type:"image/webp"});
+if(full._objectUrl)URL.revokeObjectURL(full._objectUrl);
+full._objectUrl=URL.createObjectURL(blob);
+full.src=full._objectUrl;
+viewer.classList.add("active");
+viewer.setAttribute("aria-hidden","false");
+document.body.style.overflow="hidden";
+if(viewer.requestFullscreen){const p=viewer.requestFullscreen();if(p&&p.catch)p.catch(()=>{})}
+}
+function closeImageViewer(){
+const viewer=document.getElementById("imageViewer");
+viewer.classList.remove("active");
+viewer.setAttribute("aria-hidden","true");
+document.body.style.overflow="";
+if(document.fullscreenElement&&document.exitFullscreen){const p=document.exitFullscreen();if(p&&p.catch)p.catch(()=>{})}
+}
+function downloadCompanyImage(){
+if(!logoData||!logoData.length)return showMessage("No company image available.",true);
+const blob=new Blob([logoData],{type:"image/webp"});
+const url=URL.createObjectURL(blob);
+const a=document.createElement("a");
+a.href=url;
+a.download="Company-"+(document.getElementById("shirkatid").value||"Logo")+".webp";
+document.body.appendChild(a);
+a.click();
+a.remove();
+setTimeout(()=>URL.revokeObjectURL(url),1500);
+}
+document.addEventListener("keydown",function(e){if(e.key==="Escape")closeImageViewer()});
 function loadImage(file){
 return new Promise((resolve,reject)=>{
 if(window.createImageBitmap){
