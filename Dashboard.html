@@ -8,10 +8,14 @@
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#071b32,#123e62,#087e8b);min-height:100vh;overflow:hidden;color:white}
-.header{height:60px;background:rgba(255,255,255,.10);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,255,255,.2);color:#ffb547;display:flex;align-items:center;padding:0 22px;font-size:22px;font-weight:bold;box-shadow:0 4px 20px rgba(0,0,0,.15)}
-.layout{display:flex;height:calc(100vh - 60px);align-items:stretch;gap:10px;padding:10px}
-.sidebar{width:210px;flex-shrink:0;background:rgba(255,255,255,.10);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.2);border-radius:16px;padding:12px;display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.2)}
-.submenu{width:220px;flex-shrink:0;background:rgba(255,255,255,.13);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.2);border-radius:16px;padding:12px;display:none;align-self:flex-start;height:auto;box-shadow:0 8px 32px rgba(0,0,0,.2)}
+.header{height:60px;background:rgba(255,255,255,.10);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,255,255,.2);color:#ffb547;display:flex;align-items:center;padding:0 18px;gap:15px;font-size:22px;font-weight:bold;box-shadow:0 4px 20px rgba(0,0,0,.15);position:relative;z-index:20}
+.hamburger{width:40px;height:40px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:5px;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.25);border-radius:9px;cursor:pointer;flex-shrink:0}
+.hamburger span{display:block;width:21px;height:2px;background:#ffb547;border-radius:3px}
+.layout{display:flex;height:calc(100vh - 60px);align-items:stretch;gap:10px;padding:10px;position:relative}
+.sidebar{width:210px;flex-shrink:0;background:rgba(255,255,255,.10);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.2);border-radius:16px;padding:12px;display:none;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.2);position:absolute;top:10px;left:10px;bottom:10px;z-index:15}
+.sidebar.show{display:flex}
+.submenu{width:220px;flex-shrink:0;background:rgba(255,255,255,.13);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.2);border-radius:16px;padding:12px;display:none;position:absolute;left:230px;top:10px;z-index:16;box-shadow:0 8px 32px rgba(0,0,0,.2)}
+.submenu.show{display:block}
 .menu-button{width:100%;padding:14px 10px;background:rgba(255,255,255,.09);color:#ffb547;border:1px solid rgba(255,255,255,.16);border-bottom:1px solid rgba(255,181,71,.5);border-radius:9px;text-align:left;font-size:15px;font-weight:bold;cursor:pointer;transition:.25s}
 .menu-button:hover,.menu-button.active{background:rgba(255,255,255,.2);border-color:#ffb547;box-shadow:0 4px 15px rgba(0,0,0,.15)}
 .logout-button{width:100%;padding:13px 10px;margin-top:auto;background:rgba(220,53,69,.65);backdrop-filter:blur(10px);color:white;border:1px solid rgba(255,255,255,.35);border-radius:9px;text-align:left;font-size:15px;font-weight:bold;cursor:pointer;transition:.25s}
@@ -19,15 +23,18 @@ body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#07
 .sub-button{width:100%;padding:13px 8px;margin-bottom:7px;background:rgba(18,62,98,.55);color:#ffb547;border:1px solid rgba(255,255,255,.2);border-radius:9px;text-align:left;font-size:14px;font-weight:bold;cursor:pointer;transition:.25s;backdrop-filter:blur(10px)}
 .sub-button:last-child{margin-bottom:0}
 .sub-button:hover{background:rgba(8,126,139,.75);color:white;border-color:#ffb547;transform:translateX(3px);box-shadow:0 4px 14px rgba(0,0,0,.15)}
-.main-panel{flex:1;min-width:0;background:rgba(255,255,255,.10);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.2);border-radius:16px;padding:20px;overflow:auto;box-shadow:0 8px 32px rgba(0,0,0,.2)}
+.main-panel{width:100%;flex:1;min-width:0;background:rgba(255,255,255,.10);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.2);border-radius:16px;padding:20px;overflow:auto;box-shadow:0 8px 32px rgba(0,0,0,.2)}
 .main-panel iframe{border-radius:12px}
-@media(max-width:600px){.layout{gap:5px;padding:5px}.sidebar{width:125px;padding:6px;border-radius:10px}.submenu{width:155px;padding:6px;border-radius:10px}.menu-button,.sub-button,.logout-button{font-size:12px;padding:12px 5px}.sub-button{margin-bottom:5px}.main-panel{padding:8px;border-radius:10px}}
+@media(max-width:600px){.layout{gap:5px;padding:5px}.sidebar{width:165px;padding:8px;border-radius:10px;left:5px;top:5px;bottom:5px}.submenu{width:180px;padding:8px;border-radius:10px;left:175px;top:5px}.menu-button,.sub-button,.logout-button{font-size:12px;padding:12px 5px}.sub-button{margin-bottom:5px}.main-panel{padding:8px;border-radius:10px}.header{font-size:19px;padding:0 12px;gap:12px}}
 </style>
 </head>
 <body>
-<header class="header">PharmaPOS Dashboard</header>
+<header class="header">
+<button class="hamburger" onclick="toggleSidebar()" aria-label="Open menu"><span></span><span></span><span></span></button>
+<span>PharmaPOS Dashboard</span>
+</header>
 <div class="layout">
-<aside class="sidebar">
+<aside class="sidebar" id="sidebar">
 <button class="menu-button" id="masterButton" onclick="toggleMasterData()">Master Data <span id="masterArrow">›</span></button>
 <button class="logout-button" onclick="logout()">🚪 Logout</button>
 </aside>
@@ -42,18 +49,28 @@ body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#07
 <main class="main-panel" id="MainPanel"></main>
 </div>
 <script>
+function toggleSidebar(){
+const sidebar=document.getElementById("sidebar");
+const submenu=document.getElementById("masterSubMenu");
+const opened=sidebar.classList.toggle("show");
+if(!opened){
+submenu.classList.remove("show");
+document.getElementById("masterButton").classList.remove("active");
+document.getElementById("masterArrow").textContent="›";
+}
+}
 function toggleMasterData(){
 const menu=document.getElementById("masterSubMenu");
 const button=document.getElementById("masterButton");
-const opened=menu.style.display==="block";
-menu.style.display=opened?"none":"block";
-button.classList.toggle("active",!opened);
-document.getElementById("masterArrow").textContent=opened?"›":"‹";
+const opened=menu.classList.toggle("show");
+button.classList.toggle("active",opened);
+document.getElementById("masterArrow").textContent=opened?"‹":"›";
 }
 function openForm(file){
 const panel=document.getElementById("MainPanel");
 panel.innerHTML='<iframe src="./'+file+'" style="width:100%;height:100%;min-height:500px;border:0;background:transparent"></iframe>';
-document.getElementById("masterSubMenu").style.display="none";
+document.getElementById("masterSubMenu").classList.remove("show");
+document.getElementById("sidebar").classList.remove("show");
 document.getElementById("masterButton").classList.remove("active");
 document.getElementById("masterArrow").textContent="›";
 }
