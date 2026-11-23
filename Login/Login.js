@@ -47,7 +47,6 @@ showMessage("Database initialization failed. Please check the database files.",t
 }
 }
 document.addEventListener("DOMContentLoaded",()=>{
-initializeLogin();
 document.getElementById("loginForm").addEventListener("submit",async event=>{
 event.preventDefault();
 if(!databaseReady)return showMessage("Database is not ready.",true);
@@ -81,4 +80,5 @@ showLoginForm("User created successfully. Please login.");
 showMessage("Unable to create user. Username may already exist.",true);
 }
 });
+initializeLogin();
 });
