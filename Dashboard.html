@@ -14,10 +14,10 @@ body{margin:0;font-family:Arial,sans-serif;background:#edf2f7;overflow:hidden}
 .submenu{width:220px;flex-shrink:0;background:#075985;padding:12px;display:none}
 .menu-button{width:100%;padding:14px 10px;background:#123e62;color:#ffb547;border:0;border-bottom:1px solid #ffb547;text-align:left;font-size:15px;font-weight:bold;cursor:pointer}
 .menu-button:hover,.menu-button.active{background:#123e62}
-.sub-button{width:100%;padding:12px 8px;background:transparent;color:#ffb547;border:0;border-bottom:1px solid #ffb547;text-align:left;font-size:14px;cursor:pointer}
-.sub-button:hover{background:#087e8b}
+.sub-button{width:100%;padding:13px 8px;margin-bottom:7px;background:#123e62;color:#ffb547;border:1px solid #ffb547;border-radius:6px;text-align:left;font-size:14px;font-weight:bold;cursor:pointer;transition:.2s}
+.sub-button:hover{background:#087e8b;color:white;border-color:#ffb547}
 .main-panel{flex:1;min-width:0;background:#f1f5f9;padding:20px;overflow:auto}
-@media(max-width:600px){.sidebar{width:125px;padding:6px}.submenu{width:155px;padding:6px}.menu-button,.sub-button{font-size:12px;padding:12px 5px}.main-panel{padding:8px}}
+@media(max-width:600px){.sidebar{width:125px;padding:6px}.submenu{width:155px;padding:6px}.menu-button,.sub-button{font-size:12px;padding:12px 5px}.sub-button{margin-bottom:5px}.main-panel{padding:8px}}
 </style>
 </head>
 <body>
@@ -27,12 +27,12 @@ body{margin:0;font-family:Arial,sans-serif;background:#edf2f7;overflow:hidden}
 <button class="menu-button" id="masterButton" onclick="toggleMasterData()">Master Data <span id="masterArrow">›</span></button>
 </aside>
 <aside class="submenu" id="masterSubMenu">
-<button class="sub-button" onclick="openForm('AddNewUser.html')">Add New User</button>
-<button class="sub-button" onclick="openForm('AddShirkat.html')">Add Shirkat</button>
-<button class="sub-button" onclick="openForm('SmallAccounts.html')">Small Accounts</button>
-<button class="sub-button" onclick="openForm('AddNewEmploye.html')">Add New Employe</button>
-<button class="sub-button" onclick="openForm('AddNewAccount.html')">Add New Account</button>
-<button class="sub-button" onclick="openForm('AddNewProduct.html')">Add New Product</button>
+<button class="sub-button" onclick="openForm('AddNewUser.html')">👤 Add New User</button>
+<button class="sub-button" onclick="openForm('AddShirkat.html')">🏢 Add Shirkat</button>
+<button class="sub-button" onclick="openForm('SmallAccounts.html')">📒 Small Accounts</button>
+<button class="sub-button" onclick="openForm('AddNewEmploye.html')">👨‍💼 Add New Employe</button>
+<button class="sub-button" onclick="openForm('AddNewAccount.html')">💳 Add New Account</button>
+<button class="sub-button" onclick="openForm('AddNewProduct.html')">📦 Add New Product</button>
 </aside>
 <main class="main-panel" id="MainPanel"></main>
 </div>
@@ -48,6 +48,9 @@ document.getElementById("masterArrow").textContent=opened?"›":"‹";
 function openForm(file){
 const panel=document.getElementById("MainPanel");
 panel.innerHTML='<iframe src="'+file+'" style="width:100%;height:100%;min-height:500px;border:0;background:white"></iframe>';
+document.getElementById("masterSubMenu").style.display="none";
+document.getElementById("masterButton").classList.remove("active");
+document.getElementById("masterArrow").textContent="›";
 }
 </script>
 </body>
