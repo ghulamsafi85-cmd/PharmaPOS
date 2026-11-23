@@ -9,14 +9,15 @@
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,sans-serif;background:#edf2f7;overflow:hidden}
 .header{height:60px;background:linear-gradient(90deg,#123e62,#087e8b);color:#ffb547;display:flex;align-items:center;padding:0 22px;font-size:22px;font-weight:bold}
-.layout{display:flex;height:calc(100vh - 60px)}
+.layout{display:flex;height:calc(100vh - 60px);align-items:stretch}
 .sidebar{width:210px;flex-shrink:0;background:#123e62;padding:12px;display:flex;flex-direction:column}
-.submenu{width:220px;flex-shrink:0;background:#075985;padding:12px;display:none}
+.submenu{width:220px;flex-shrink:0;background:#075985;padding:12px;display:none;align-self:flex-start;height:auto}
 .menu-button{width:100%;padding:14px 10px;background:#123e62;color:#ffb547;border:0;border-bottom:1px solid #ffb547;text-align:left;font-size:15px;font-weight:bold;cursor:pointer}
 .menu-button:hover,.menu-button.active{background:#123e62}
 .logout-button{width:100%;padding:13px 10px;margin-top:auto;background:#dc3545;color:white;border:1px solid #ffb547;border-radius:7px;text-align:left;font-size:15px;font-weight:bold;cursor:pointer}
 .logout-button:hover{background:#b91c1c}
 .sub-button{width:100%;padding:13px 8px;margin-bottom:7px;background:#123e62;color:#ffb547;border:1px solid #ffb547;border-radius:6px;text-align:left;font-size:14px;font-weight:bold;cursor:pointer;transition:.2s}
+.sub-button:last-child{margin-bottom:0}
 .sub-button:hover{background:#087e8b;color:white;border-color:#ffb547}
 .main-panel{flex:1;min-width:0;background:#f1f5f9;padding:20px;overflow:auto}
 @media(max-width:600px){.sidebar{width:125px;padding:6px}.submenu{width:155px;padding:6px}.menu-button,.sub-button,.logout-button{font-size:12px;padding:12px 5px}.sub-button{margin-bottom:5px}.main-panel{padding:8px}}
