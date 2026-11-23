@@ -83,7 +83,7 @@ function showLoginForm(message = "") {
             if (!user) return showMessage("Invalid username or password.", true);
             sessionStorage.setItem("currentUserId", user.userid);
             sessionStorage.setItem("currentUsername", user.username);
-            showMessage("Login successful.");
+            window.location.href = "../Dashboard.html";
         } catch (error) {
             showMessage("Login failed. Please try again.", true);
         }
