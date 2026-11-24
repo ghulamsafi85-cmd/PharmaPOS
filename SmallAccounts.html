@@ -1,0 +1,293 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Small Accounts Registration</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;min-height:100%;font-family:Arial,Helvetica,sans-serif;background:#eef2f8;color:#243247}
+body{padding:24px;display:flex;justify-content:center;align-items:flex-start}
+.formCard{width:100%;max-width:760px;background:rgba(255,255,255,.94);border:1px solid #dce5f0;border-radius:18px;padding:30px 34px;box-shadow:0 12px 38px rgba(25,45,75,.12)}
+.formTitle{text-align:center;font-size:25px;font-weight:700;color:#1765a8;margin:0 0 28px;padding-bottom:17px;border-bottom:2px solid #e7edf5;letter-spacing:.3px}
+.field{margin-bottom:19px}
+.field label{display:block;font-size:14px;font-weight:700;color:#34445b;margin-bottom:8px}
+.field input,.field select{width:100%;height:47px;border:1px solid #cbd6e4;border-radius:8px;background:#fff;padding:0 14px;font-size:15px;color:#26364c;outline:none;transition:.2s}
+.field input:focus,.field select:focus{border-color:#2685c8;box-shadow:0 0 0 3px rgba(38,133,200,.12)}
+.field input[readonly]{background:#f0f4f9;color:#53657c;font-weight:700}
+.field input::placeholder{color:#9aa8b8}
+.formButtons{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;margin-top:27px}
+.actionBtn{height:45px;border:0;border-radius:8px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;transition:filter .2s,transform .2s;box-shadow:0 3px 8px rgba(0,0,0,.1)}
+.actionBtn:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.actionBtn:active{transform:translateY(0)}
+.actionBtn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.addBtn{background:#168b70}
+.saveBtn{background:#176bb4}
+.nextBtn{background:#3979bb}
+.prevBtn{background:#64748b}
+.deleteBtn{background:#c43e49}
+.closeBtn{background:#34445b}
+.btnIcon{margin-right:7px}
+.formMessage{min-height:20px;text-align:center;margin-top:17px;font-size:13px;font-weight:600;color:#1765b5}
+@media(max-width:560px){
+body{padding:12px}
+.formCard{padding:23px 17px;border-radius:13px}
+.formTitle{font-size:21px;margin-bottom:23px}
+.formButtons{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.actionBtn{height:44px;font-size:13px}
+}
+</style>
+</head>
+<body>
+<div class="formCard">
+<div class="formTitle">Small Accounts Registration</div>
+<form id="smallAccountForm" autocomplete="off">
+<div class="field">
+<label for="smallaccountid">Small Account ID</label>
+<input id="smallaccountid" name="smallaccountid" type="number" placeholder="Small Account ID" readonly required>
+</div>
+<div class="field">
+<label for="smallaccountname">Small Account Name</label>
+<input id="smallaccountname" name="smallaccountname" type="text" placeholder="Enter Small Account Name" maxlength="200" required>
+</div>
+<div class="field">
+<label for="subcode">Sub Code</label>
+<select id="subcode" name="subcode" required>
+<option value="">Select Sub Code</option>
+<option value="Country">Country</option>
+<option value="Province">Province</option>
+<option value="District">District</option>
+<option value="Unit">Unit</option>
+<option value="Position">Position</option>
+<option value="Currency">Currency</option>
+</select>
+</div>
+<div class="formButtons">
+<button type="button" class="actionBtn addBtn" id="addButton"><span class="btnIcon">＋</span>Add New</button>
+<button type="submit" class="actionBtn saveBtn" id="saveButton"><span class="btnIcon">💾</span>Save/Edit</button>
+<button type="button" class="actionBtn nextBtn" id="nextButton"><span class="btnIcon">▶</span>Next Rec</button>
+<button type="button" class="actionBtn prevBtn" id="previousButton"><span class="btnIcon">◀</span>Previous</button>
+<button type="button" class="actionBtn deleteBtn" id="deleteButton"><span class="btnIcon">🗑</span>Delete</button>
+<button type="button" class="actionBtn closeBtn" id="closeButton"><span class="btnIcon">✖</span>Close</button>
+</div>
+<div class="formMessage" id="formMessage"></div>
+</form>
+</div>
+<script>
+const PROJECT_ID="pharmapos-896c2";
+const COLLECTION="SmallAccounts";
+const FIRESTORE_URL="https://firestore.googleapis.com/v1/projects/"+PROJECT_ID+"/databases/(default)/documents/"+COLLECTION;
+const form=document.getElementById("smallAccountForm");
+const idBox=document.getElementById("smallaccountid");
+const nameBox=document.getElementById("smallaccountname");
+const subcodeBox=document.getElementById("subcode");
+const saveButton=document.getElementById("saveButton");
+const deleteButton=document.getElementById("deleteButton");
+const messageBox=document.getElementById("formMessage");
+let records=[];
+let currentIndex=-1;
+let isNewRecord=true;
+let loading=false;
+function getToken(){
+return sessionStorage.getItem("firebaseIdToken")||"";
+}
+function showMessage(message,isError=false){
+messageBox.textContent=message;
+messageBox.style.color=isError?"#c43e49":"#1765b5";
+}
+function firestoreValue(value){
+return value?.stringValue??value?.integerValue??"";
+}
+function convertDocument(doc){
+const fields=doc.fields||{};
+return{
+id:Number(firestoreValue(fields.smallaccountid)),
+name:String(firestoreValue(fields.smallaccountname)),
+subcode:String(firestoreValue(fields.subcode)),
+documentName:doc.name
+};
+}
+async function requestFirestore(url,options={}){
+const token=getToken();
+if(!token)throw new Error("Administrator session expired. Please login again.");
+const response=await fetch(url,{
+...options,
+headers:{
+"Authorization":"Bearer "+token,
+"Content-Type":"application/json",
+...(options.headers||{})
+}
+});
+const data=await response.json().catch(()=>({}));
+if(!response.ok)throw new Error(data.error?.message||"Database operation failed.");
+return data;
+}
+async function loadRecords(){
+if(loading)return;
+loading=true;
+try{
+const data=await requestFirestore(FIRESTORE_URL+"?pageSize=1000");
+records=(data.documents||[]).map(convertDocument).filter(x=>Number.isInteger(x.id)&&x.id>0).sort((a,b)=>a.id-b.id);
+if(records.length){
+currentIndex=0;
+displayRecord(currentIndex);
+}else{
+currentIndex=-1;
+prepareNewRecord();
+}
+showMessage(records.length?"Records loaded successfully.":"No records found. Add the first record.");
+}catch(error){
+showMessage(error.message,true);
+}catchErrorFocus();
+}finally{
+loading=false;
+}
+}
+function catchErrorFocus(){
+nameBox.focus();
+}
+function nextId(){
+return records.length?Math.max(...records.map(x=>x.id))+1:1;
+}
+function displayRecord(index){
+if(index<0||index>=records.length)return;
+const record=records[index];
+idBox.value=record.id;
+nameBox.value=record.name;
+subcodeBox.value=record.subcode;
+currentIndex=index;
+isNewRecord=false;
+saveButton.disabled=false;
+deleteButton.disabled=false;
+}
+function prepareNewRecord(){
+idBox.value=nextId();
+nameBox.value="";
+subcodeBox.value="";
+currentIndex=-1;
+isNewRecord=true;
+saveButton.disabled=false;
+deleteButton.disabled=true;
+nameBox.focus();
+}
+function validateFields(){
+if(!idBox.value||Number(idBox.value)<1){
+showMessage("Invalid Small Account ID.",true);
+return false;
+}
+if(!nameBox.value.trim()){
+showMessage("Small Account Name is required.",true);
+nameBox.focus();
+return false;
+}
+if(!subcodeBox.value){
+showMessage("Please select a Sub Code.",true);
+subcodeBox.focus();
+return false;
+}
+return true;
+}
+async function saveRecord(event){
+if(event)event.preventDefault();
+if(loading||!validateFields())return;
+const id=Number(idBox.value);
+const name=nameBox.value.trim();
+const subcode=subcodeBox.value;
+const existing=records.find(x=>x.id===id);
+if(isNewRecord&&existing){
+showMessage("This Small Account ID already exists.",true);
+return;
+}
+saveButton.disabled=true;
+loading=true;
+try{
+const documentUrl=FIRESTORE_URL+"/"+id+"?updateMask.fieldPaths=smallaccountid&updateMask.fieldPaths=smallaccountname&updateMask.fieldPaths=subcode";
+const body={fields:{
+smallaccountid:{integerValue:String(id)},
+smallaccountname:{stringValue:name},
+subcode:{stringValue:subcode}
+}};
+await requestFirestore(documentUrl,{method:"PATCH",body:JSON.stringify(body)});
+await refreshAfterSave(id);
+showMessage(existing?"Small Account updated successfully.":"Small Account saved successfully.");
+}catch(error){
+showMessage(error.message,true);
+}finally{
+loading=false;
+saveButton.disabled=false;
+}
+}
+async function refreshAfterSave(id){
+const data=await requestFirestore(FIRESTORE_URL+"?pageSize=1000");
+records=(data.documents||[]).map(convertDocument).filter(x=>Number.isInteger(x.id)&&x.id>0).sort((a,b)=>a.id-b.id);
+currentIndex=records.findIndex(x=>x.id===id);
+if(currentIndex>=0)displayRecord(currentIndex);
+}
+async function navigateRecord(direction){
+if(loading)return;
+if(!records.length){
+showMessage("No records available.",true);
+return;
+}
+if(isNewRecord&&direction==="previous"){
+displayRecord(records.length-1);
+showMessage("Last record loaded.");
+return;
+}
+let index=currentIndex;
+if(direction==="next")index++;
+else index--;
+if(index<0||index>=records.length){
+showMessage(direction==="next"?"This is the last record.":"This is the first record.",true);
+return;
+}
+displayRecord(index);
+showMessage("Record loaded.");
+}
+async function deleteRecord(){
+if(loading||isNewRecord||currentIndex<0)return;
+const record=records[currentIndex];
+if(!confirm("Are you sure you want to delete this Small Account?"))return;
+loading=true;
+deleteButton.disabled=true;
+try{
+await requestFirestore(FIRESTORE_URL+"/"+record.id,{method:"DELETE"});
+records=records.filter(x=>x.id!==record.id);
+if(records.length){
+currentIndex=Math.min(currentIndex,records.length-1);
+displayRecord(currentIndex);
+}else{
+currentIndex=-1;
+prepareNewRecord();
+}
+showMessage("Small Account deleted successfully.");
+}catch(error){
+showMessage(error.message,true);
+deleteButton.disabled=false;
+}finally{
+loading=false;
+}
+}
+document.getElementById("addButton").addEventListener("click",()=>{
+if(loading)return;
+prepareNewRecord();
+showMessage("New Small Account is ready.");
+});
+document.getElementById("nextButton").addEventListener("click",()=>navigateRecord("next"));
+document.getElementById("previousButton").addEventListener("click",()=>navigateRecord("previous"));
+document.getElementById("deleteButton").addEventListener("click",deleteRecord);
+document.getElementById("closeButton").addEventListener("click",()=>{
+const panel=document.getElementById("MainPanel");
+if(window.parent!==window&&panel){
+panel.innerHTML="";
+return;
+}
+if(window.history.length>1)window.history.back();
+else window.location.href="../Dashboard.html";
+});
+form.addEventListener("submit",saveRecord);
+window.addEventListener("load",loadRecords);
+</script>
+</body>
+</html>
