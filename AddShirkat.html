@@ -66,8 +66,8 @@ input[type=text],input[type=email],input[type=number]{font-size:14px}
 </div>
 <input id="imageInput" type="file" accept="image/*">
 <div class="buttons">
-<button class="add" id="addButton" onclick="addNew()">➕ Add New</button>
-<button class="save" onclick="saveShirkat()">💾 Save/Edit</button>
+<button class="add" onclick="addNew()">➕ Add New</button>
+<button class="save" id="saveButton" onclick="saveShirkat()">💾 Save/Edit</button>
 <button class="next" onclick="nextRecord()">⏭ Next</button>
 <button class="previous" onclick="previousRecord()">⏮ Previous</button>
 <button class="delete" onclick="deleteShirkat()">🗑 Delete</button>
@@ -90,8 +90,13 @@ function nextId(){
 const r=db.exec("SELECT COALESCE(MAX(shirkatid),0)+1 FROM Shirkat");
 return r[0].values[0][0];
 }
-function updateAddButton(){
-document.getElementById("addButton").disabled=getCount()>=1;
+function updateSaveButton(){
+const id=Number(document.getElementById("shirkatid").value);
+document.getElementById("saveButton").disabled=currentId===null&&id!==1;
+}
+function setNextShirkatId(){
+document.getElementById("shirkatid").value=nextId();
+updateSaveButton();
 }
 function showLogo(data){
 const img=document.getElementById("logoPreview");
@@ -181,16 +186,15 @@ alert("Image processing failed: "+e.message);
 }
 });
 function clearFields(){
-document.getElementById("shirkatid").value=nextId();
+currentId=null;
+logoData=null;
+showLogo(null);
 document.getElementById("shirkatname").value="";
 document.getElementById("mobile").value="";
 document.getElementById("email").value="";
 document.getElementById("address").value="";
-currentId=null;
-logoData=null;
-showLogo(null);
 document.getElementById("imageInput").value="";
-updateAddButton();
+setNextShirkatId();
 document.getElementById("shirkatname").focus();
 }
 function readRecord(id){
@@ -208,16 +212,13 @@ currentId=r.shirkatid;
 logoData=r.logo?new Uint8Array(r.logo):null;
 showLogo(logoData);
 document.getElementById("imageInput").value="";
-updateAddButton();
+updateSaveButton();
 document.getElementById("shirkatname").focus();
 return true;
 }finally{s.free()}
 }
 function addNew(){
-try{
-if(getCount()>=1)return alert("Only one company record is allowed.");
 clearFields();
-}catch(e){alert("Database error.")}
 }
 function saveShirkat(){
 const id=Number(document.getElementById("shirkatid").value);
@@ -225,18 +226,20 @@ const name=document.getElementById("shirkatname").value.trim();
 const mobile=document.getElementById("mobile").value.trim();
 const email=document.getElementById("email").value.trim();
 const address=document.getElementById("address").value.trim();
+if(document.getElementById("saveButton").disabled)return;
 if(!name)return alert("Please enter company name.");
 try{
 if(currentId===null){
-if(getCount()>=1||id!==nextId())return alert("Only one company record is allowed.");
+if(id!==nextId()||id!==1)return alert("Only Company ID 1 can be registered.");
 const s=db.prepare("INSERT INTO Shirkat(shirkatid,shirkatname,mobile,email,address,logo) VALUES(?,?,?,?,?,?)");
 try{s.run([id,name,mobile,email,address,logoData])}finally{s.free()}
+currentId=id;
 }else{
 const s=db.prepare("UPDATE Shirkat SET shirkatname=?,mobile=?,email=?,address=?,logo=? WHERE shirkatid=?");
 try{s.run([name,mobile,email,address,logoData,currentId])}finally{s.free()}
 }
 saveDatabase();
-clearFields();
+readRecord(currentId);
 alert("Company saved successfully.");
 }catch(e){alert("Unable to save company: "+e.message)}
 }
