@@ -82,8 +82,6 @@ input[type=text],input[type=email],input[type=number]{font-size:14px}
 let currentId=null;
 let logoData=null;
 let logoUrl=null;
-function showMessage(message,error=false){
-}
 function getCount(){
 const r=db.exec("SELECT COUNT(*) FROM Shirkat");
 return r.length?r[0].values[0][0]:0;
@@ -93,7 +91,7 @@ const r=db.exec("SELECT COALESCE(MAX(shirkatid),0)+1 FROM Shirkat");
 return r[0].values[0][0];
 }
 function updateAddButton(){
-document.getElementById("addButton").disabled=getCount()>=1||Number(document.getElementById("shirkatid").value)>1;
+document.getElementById("addButton").disabled=getCount()>=1;
 }
 function showLogo(data){
 const img=document.getElementById("logoPreview");
@@ -217,7 +215,7 @@ return true;
 }
 function addNew(){
 try{
-if(getCount()>=1)return;
+if(getCount()>=1)return alert("Only one company record is allowed.");
 clearFields();
 }catch(e){alert("Database error.")}
 }
@@ -230,15 +228,15 @@ const address=document.getElementById("address").value.trim();
 if(!name)return alert("Please enter company name.");
 try{
 if(currentId===null){
-if(getCount()>=1||id!==1)return alert("Only one company record is allowed.");
+if(getCount()>=1||id!==nextId())return alert("Only one company record is allowed.");
 const s=db.prepare("INSERT INTO Shirkat(shirkatid,shirkatname,mobile,email,address,logo) VALUES(?,?,?,?,?,?)");
-try{s.run([1,name,mobile,email,address,logoData])}finally{s.free()}
+try{s.run([id,name,mobile,email,address,logoData])}finally{s.free()}
 }else{
 const s=db.prepare("UPDATE Shirkat SET shirkatname=?,mobile=?,email=?,address=?,logo=? WHERE shirkatid=?");
 try{s.run([name,mobile,email,address,logoData,currentId])}finally{s.free()}
 }
 saveDatabase();
-readRecord(1);
+clearFields();
 alert("Company saved successfully.");
 }catch(e){alert("Unable to save company: "+e.message)}
 }
@@ -289,12 +287,7 @@ try{
 if(!window.initSqlJs)throw new Error("SQL.js library failed to load.");
 await initDatabase("./");
 db.run("CREATE TABLE IF NOT EXISTS Shirkat (shirkatid INTEGER PRIMARY KEY, shirkatname TEXT, mobile TEXT, email TEXT, address TEXT, logo BLOB)");
-if(getCount()>0){
-const r=db.exec("SELECT MIN(shirkatid) FROM Shirkat");
-readRecord(r[0].values[0][0]);
-}else{
 clearFields();
-}
 }catch(e){alert("Database initialization failed: "+(e.message||e))}
 }
 startForm();
