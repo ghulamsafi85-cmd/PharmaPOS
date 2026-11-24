@@ -7,11 +7,12 @@
 <title>Add Shirkat</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#edf2f7;font-family:Arial,sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:15px 10px}
-.card{width:100%;max-width:560px;background:white;padding:18px;border-radius:14px;box-shadow:0 5px 22px #123e6220;border-top:5px solid #087e8b}
-h2{text-align:center;color:#123e62;margin:0 0 14px;font-size:22px}
-.fields{display:flex;flex-direction:column;gap:7px}
-.input-group{height:43px;width:100%;display:flex;align-items:center;padding:0 12px;border:1px solid #b8cbd8;border-radius:8px;background:#f8fbfd;transition:.2s}
+html,body{margin:0;width:100%;height:100%;overflow:hidden}
+body{background:#edf2f7;font-family:Arial,sans-serif;min-height:100vh;min-height:100dvh;display:flex;justify-content:center;align-items:center;padding:clamp(5px,1.5vh,12px)}
+.card{width:100%;max-width:560px;max-height:100%;overflow:hidden;background:white;padding:clamp(10px,1.8vh,16px);border-radius:14px;box-shadow:0 5px 22px #123e6220;border-top:5px solid #087e8b}
+h2{text-align:center;color:#123e62;margin:0 0 clamp(7px,1.2vh,12px);font-size:22px}
+.fields{display:flex;flex-direction:column;gap:clamp(4px,.8vh,7px)}
+.input-group{height:clamp(34px,5.5vh,43px);width:100%;display:flex;align-items:center;padding:0 12px;border:1px solid #b8cbd8;border-radius:8px;background:#f8fbfd;transition:.2s;flex-shrink:0}
 .input-group:focus-within{border-color:#087e8b;box-shadow:0 0 0 3px #087e8b20;background:white}
 .input-group>svg{width:21px;height:21px;fill:none;stroke:#123e62;stroke-width:2;flex-shrink:0}
 .input-group input{flex:1;min-width:0;width:100%;height:100%;border:0!important;outline:0!important;box-shadow:none!important;background:transparent!important;color:#123e62!important;-webkit-text-fill-color:#123e62!important;caret-color:#087e8b;font-size:15px;padding:0 12px;text-align:center}
@@ -19,16 +20,16 @@ h2{text-align:center;color:#123e62;margin:0 0 14px;font-size:22px}
 .input-group input::placeholder{color:#78909c;-webkit-text-fill-color:#78909c;opacity:1}
 .input-group input[readonly]{color:#075985!important;-webkit-text-fill-color:#075985!important;font-weight:bold;cursor:default}
 .input-group input:-webkit-autofill,.input-group input:-webkit-autofill:hover,.input-group input:-webkit-autofill:focus{-webkit-text-fill-color:#123e62!important;-webkit-box-shadow:0 0 0 1000px transparent inset!important;box-shadow:0 0 0 1000px transparent inset!important;transition:background-color 9999s ease-in-out 0s}
-.image-area{height:180px;margin-top:9px;display:flex;justify-content:center;align-items:center;background:#f8fbfd;border:1px dashed #9bb5c5;border-radius:9px;overflow:hidden;padding:5px}
-#logoPreview{max-width:100%;max-height:170px;width:auto;height:auto;object-fit:contain;cursor:zoom-in;touch-action:manipulation}
+.image-area{height:clamp(75px,18vh,150px);margin-top:clamp(5px,1vh,9px);display:flex;justify-content:center;align-items:center;background:#f8fbfd;border:1px dashed #9bb5c5;border-radius:9px;overflow:hidden;padding:5px}
+#logoPreview{max-width:100%;max-height:calc(100% - 5px);width:auto;height:auto;object-fit:contain;cursor:zoom-in;touch-action:manipulation}
 #imagePlaceholder{color:#78909c;font-size:13px}
 #imageInput{display:none}
-.buttons{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-top:10px}
-button{height:44px;width:100%;border:0;border-radius:8px;color:white;font-size:12px;font-weight:bold;cursor:pointer;box-shadow:0 2px 5px #0002;transition:.15s;padding:4px 2px}
+.buttons{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(4px,.8vh,7px);margin-top:clamp(6px,1.2vh,10px)}
+button{height:clamp(34px,5.6vh,44px);width:100%;border:0;border-radius:8px;color:white;font-size:12px;font-weight:bold;cursor:pointer;box-shadow:0 2px 5px #0002;transition:.15s;padding:4px 2px}
 button:active{transform:scale(.97)}
 .add{background:#087e8b}.save{background:#16803c}.next{background:#2563eb}.previous{background:#7c3aed}.delete{background:#dc3545}.close{background:#475569}.select{background:#0d9488}.clear{background:#64748b}
 button:hover{filter:brightness(.9)}
-#message{text-align:center;min-height:20px;margin:10px 0 0;font-size:13px;font-weight:bold;color:#16803c;overflow-wrap:anywhere}
+#message{text-align:center;min-height:16px;margin:6px 0 0;font-size:12px;font-weight:bold;color:#16803c;overflow-wrap:anywhere}
 #imageViewer{display:none;position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;background:#05080d;z-index:99999;align-items:center;justify-content:center;padding:58px 8px 12px;touch-action:manipulation}
 #imageViewer.active{display:flex}
 #fullImage{display:block;max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain}
@@ -36,7 +37,41 @@ button:hover{filter:brightness(.9)}
 .viewer-actions button{width:auto;min-width:94px;height:42px;padding:0 14px;font-size:13px}
 .viewer-download{background:#16803c}
 .viewer-close{background:#dc3545}
-@media(max-width:380px){body{padding:9px 6px}.card{padding:12px}.buttons{gap:5px}button{font-size:10px;height:42px}.input-group{height:41px}.input-group input{font-size:14px;padding:0 8px}}
+@media(max-width:380px){
+body{padding:5px}
+.card{padding:9px}
+h2{font-size:20px;margin-bottom:7px}
+.buttons{gap:4px}
+button{font-size:10px;padding:3px 1px}
+.input-group{padding:0 8px}
+.input-group input{font-size:13px;padding:0 7px}
+.input-group>svg{width:18px;height:18px}
+}
+@media(max-height:650px){
+.card{padding:10px 14px}
+h2{font-size:20px;margin-bottom:7px}
+.fields{gap:4px}
+.input-group{height:36px}
+.input-group>svg{width:18px;height:18px}
+.image-area{height:90px;margin-top:5px}
+.buttons{gap:5px;margin-top:6px}
+button{height:36px;font-size:11px}
+#message{min-height:14px;margin-top:4px;font-size:11px}
+}
+@media(max-height:500px){
+body{padding:4px}
+.card{padding:7px 12px;border-top-width:3px}
+h2{font-size:18px;margin-bottom:5px}
+.fields{gap:3px}
+.input-group{height:31px}
+.input-group>svg{width:16px;height:16px}
+.input-group input{font-size:13px}
+.image-area{height:58px;margin-top:4px}
+#logoPreview{max-height:52px}
+.buttons{gap:4px;margin-top:5px}
+button{height:31px;font-size:10px;border-radius:6px}
+#message{min-height:12px;margin-top:3px;font-size:10px}
+}
 </style>
 </head>
 <body>
