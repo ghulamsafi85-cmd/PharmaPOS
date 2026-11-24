@@ -1,3 +1,4 @@
+
 const REMEMBER_KEY="PharmaPOS_RememberedUsername";
 const ATTEMPT_KEY="PharmaPOS_LoginAttempts";
 const LOCK_TIME=5*60*1000;
@@ -103,7 +104,7 @@ return{
 userid:Number(fields.userid?.integerValue||fields.userid?.doubleValue||0),
 username:fields.username?.stringValue||"",
 email:fields.email?.stringValue||"",
-role:fields.role?.stringValue||""
+role:(fields.role?.stringValue||"").trim().toLowerCase()
 };
 }
 async function initializeLogin(){
@@ -136,12 +137,13 @@ try{
 const auth=await firebaseLogin(username,password);
 const user=await getCloudUser(auth.localId,auth.idToken);
 if(!user.userid||!user.username)throw new Error("User profile is incomplete");
-if(user.role!=="admin")throw new Error("Your account does not have administrator permission");
+if(user.role!=="admin"&&user.role!=="user")throw new Error("Your account has an invalid user role. Contact your administrator.");
 clearFailedAttempts();
 if(rememberMe?.checked)localStorage.setItem(REMEMBER_KEY,username);
 else localStorage.removeItem(REMEMBER_KEY);
 sessionStorage.setItem("currentUserId",String(user.userid));
 sessionStorage.setItem("currentUsername",user.username);
+sessionStorage.setItem("currentUserRole",user.role);
 sessionStorage.setItem("firebaseUid",auth.localId);
 sessionStorage.setItem("firebaseIdToken",auth.idToken);
 sessionStorage.setItem("firebaseRefreshToken",auth.refreshToken);
