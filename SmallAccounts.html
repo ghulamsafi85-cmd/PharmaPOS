@@ -8,17 +8,17 @@
 <style>
 *{box-sizing:border-box}
 html,body{margin:0;width:100%;min-height:100%;font-family:Arial,Helvetica,sans-serif;background:#eef2f8;color:#243247}
-body{padding:24px;display:flex;justify-content:center;align-items:flex-start}
-.formCard{width:100%;max-width:760px;background:rgba(255,255,255,.94);border:1px solid #dce5f0;border-radius:18px;padding:30px 34px;box-shadow:0 12px 38px rgba(25,45,75,.12)}
-.formTitle{text-align:center;font-size:25px;font-weight:700;color:#1765a8;margin:0 0 28px;padding-bottom:17px;border-bottom:2px solid #e7edf5;letter-spacing:.3px}
-.field{margin-bottom:19px}
-.field label{display:block;font-size:14px;font-weight:700;color:#34445b;margin-bottom:8px}
-.field input,.field select{width:100%;height:47px;border:1px solid #cbd6e4;border-radius:8px;background:#fff;padding:0 14px;font-size:15px;color:#26364c;outline:none;transition:.2s}
+body{padding:18px;display:flex;justify-content:center;align-items:flex-start}
+.formCard{width:100%;max-width:700px;background:rgba(255,255,255,.96);border:1px solid #dce5f0;border-radius:16px;padding:24px 28px;box-shadow:0 10px 32px rgba(25,45,75,.11)}
+.formTitle{text-align:center;font-size:24px;font-weight:700;color:#1765a8;margin:0 0 20px;padding-bottom:13px;border-bottom:2px solid #e7edf5;letter-spacing:.3px}
+.field{margin-bottom:10px}
+.field input,.field select{width:100%;height:44px;border:1px solid #cbd6e4;border-radius:8px;background:#fff;padding:0 13px;font-size:15px;color:#26364c;outline:none;transition:.2s}
 .field input:focus,.field select:focus{border-color:#2685c8;box-shadow:0 0 0 3px rgba(38,133,200,.12)}
 .field input[readonly]{background:#f0f4f9;color:#53657c;font-weight:700}
 .field input::placeholder{color:#9aa8b8}
-.formButtons{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;margin-top:27px}
-.actionBtn{height:45px;border:0;border-radius:8px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;transition:filter .2s,transform .2s;box-shadow:0 3px 8px rgba(0,0,0,.1)}
+.formButtons{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:14px}
+.actionBtn{height:46px;border:0;border-radius:8px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;padding:0 8px;transition:filter .2s,transform .2s;box-shadow:0 3px 8px rgba(0,0,0,.1)}
+.actionBtn svg{width:17px;height:17px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .actionBtn:hover{filter:brightness(1.08);transform:translateY(-1px)}
 .actionBtn:active{transform:translateY(0)}
 .actionBtn:disabled{opacity:.45;cursor:not-allowed;transform:none}
@@ -28,13 +28,12 @@ body{padding:24px;display:flex;justify-content:center;align-items:flex-start}
 .prevBtn{background:#64748b}
 .deleteBtn{background:#c43e49}
 .closeBtn{background:#34445b}
-.btnIcon{margin-right:7px}
-.formMessage{min-height:20px;text-align:center;margin-top:17px;font-size:13px;font-weight:600;color:#1765b5}
+.formMessage{min-height:18px;text-align:center;margin-top:9px;font-size:12px;font-weight:600;color:#1765b5}
 @media(max-width:560px){
-body{padding:12px}
-.formCard{padding:23px 17px;border-radius:13px}
-.formTitle{font-size:21px;margin-bottom:23px}
-.formButtons{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+body{padding:10px}
+.formCard{padding:20px 14px;border-radius:13px}
+.formTitle{font-size:21px;margin-bottom:17px}
+.formButtons{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
 .actionBtn{height:44px;font-size:13px}
 }
 </style>
@@ -44,15 +43,12 @@ body{padding:12px}
 <div class="formTitle">Small Accounts Registration</div>
 <form id="smallAccountForm" autocomplete="off">
 <div class="field">
-<label for="smallaccountid">Small Account ID</label>
 <input id="smallaccountid" name="smallaccountid" type="number" placeholder="Small Account ID" readonly required>
 </div>
 <div class="field">
-<label for="smallaccountname">Small Account Name</label>
 <input id="smallaccountname" name="smallaccountname" type="text" placeholder="Enter Small Account Name" maxlength="200" required>
 </div>
 <div class="field">
-<label for="subcode">Sub Code</label>
 <select id="subcode" name="subcode" required>
 <option value="">Select Sub Code</option>
 <option value="Country">Country</option>
@@ -64,12 +60,12 @@ body{padding:12px}
 </select>
 </div>
 <div class="formButtons">
-<button type="button" class="actionBtn addBtn" id="addButton"><span class="btnIcon">＋</span>Add New</button>
-<button type="submit" class="actionBtn saveBtn" id="saveButton"><span class="btnIcon">💾</span>Save/Edit</button>
-<button type="button" class="actionBtn nextBtn" id="nextButton"><span class="btnIcon">▶</span>Next Rec</button>
-<button type="button" class="actionBtn prevBtn" id="previousButton"><span class="btnIcon">◀</span>Previous</button>
-<button type="button" class="actionBtn deleteBtn" id="deleteButton"><span class="btnIcon">🗑</span>Delete</button>
-<button type="button" class="actionBtn closeBtn" id="closeButton"><span class="btnIcon">✖</span>Close</button>
+<button type="button" class="actionBtn addBtn" id="addButton"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add New</button>
+<button type="submit" class="actionBtn saveBtn" id="saveButton"><svg viewBox="0 0 24 24"><path d="M5 3h12l4 4v14H3V3z"/><path d="M7 3v6h10V3M7 21v-8h10v8"/></svg>Save/Edit</button>
+<button type="button" class="actionBtn nextBtn" id="nextButton"><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>Next Rec</button>
+<button type="button" class="actionBtn prevBtn" id="previousButton"><svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>Previous</button>
+<button type="button" class="actionBtn deleteBtn" id="deleteButton"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2m3 0-1 15H6L5 6m4 4v7m6-7v7"/></svg>Delete</button>
+<button type="button" class="actionBtn closeBtn" id="closeButton"><svg viewBox="0 0 24 24"><path d="m18 6-12 12M6 6l12 12"/></svg>Close</button>
 </div>
 <div class="formMessage" id="formMessage"></div>
 </form>
@@ -89,36 +85,20 @@ let records=[];
 let currentIndex=-1;
 let isNewRecord=true;
 let loading=false;
-function getToken(){
-return sessionStorage.getItem("firebaseIdToken")||"";
-}
+function getToken(){return sessionStorage.getItem("firebaseIdToken")||""}
 function showMessage(message,isError=false){
 messageBox.textContent=message;
 messageBox.style.color=isError?"#c43e49":"#1765b5";
 }
-function firestoreValue(value){
-return value?.stringValue??value?.integerValue??"";
-}
+function firestoreValue(value){return value?.stringValue??value?.integerValue??""}
 function convertDocument(doc){
 const fields=doc.fields||{};
-return{
-id:Number(firestoreValue(fields.smallaccountid)),
-name:String(firestoreValue(fields.smallaccountname)),
-subcode:String(firestoreValue(fields.subcode)),
-documentName:doc.name
-};
+return{id:Number(firestoreValue(fields.smallaccountid)),name:String(firestoreValue(fields.smallaccountname)),subcode:String(firestoreValue(fields.subcode)),documentName:doc.name};
 }
 async function requestFirestore(url,options={}){
 const token=getToken();
 if(!token)throw new Error("Administrator session expired. Please login again.");
-const response=await fetch(url,{
-...options,
-headers:{
-"Authorization":"Bearer "+token,
-"Content-Type":"application/json",
-...(options.headers||{})
-}
-});
+const response=await fetch(url,{...options,headers:{"Authorization":"Bearer "+token,"Content-Type":"application/json",...(options.headers||{})}});
 const data=await response.json().catch(()=>({}));
 if(!response.ok)throw new Error(data.error?.message||"Database operation failed.");
 return data;
@@ -129,27 +109,13 @@ loading=true;
 try{
 const data=await requestFirestore(FIRESTORE_URL+"?pageSize=1000");
 records=(data.documents||[]).map(convertDocument).filter(x=>Number.isInteger(x.id)&&x.id>0).sort((a,b)=>a.id-b.id);
-if(records.length){
-currentIndex=0;
-displayRecord(currentIndex);
-}else{
-currentIndex=-1;
-prepareNewRecord();
-}
+if(records.length){currentIndex=0;displayRecord(currentIndex)}
+else{currentIndex=-1;prepareNewRecord()}
 showMessage(records.length?"Records loaded successfully.":"No records found. Add the first record.");
-}catch(error){
-showMessage(error.message,true);
-}catchErrorFocus();
-}finally{
-loading=false;
+}catch(error){showMessage(error.message,true);nameBox.focus()}
+finally{loading=false}
 }
-}
-function catchErrorFocus(){
-nameBox.focus();
-}
-function nextId(){
-return records.length?Math.max(...records.map(x=>x.id))+1:1;
-}
+function nextId(){return records.length?Math.max(...records.map(x=>x.id))+1:1}
 function displayRecord(index){
 if(index<0||index>=records.length)return;
 const record=records[index];
@@ -172,20 +138,9 @@ deleteButton.disabled=true;
 nameBox.focus();
 }
 function validateFields(){
-if(!idBox.value||Number(idBox.value)<1){
-showMessage("Invalid Small Account ID.",true);
-return false;
-}
-if(!nameBox.value.trim()){
-showMessage("Small Account Name is required.",true);
-nameBox.focus();
-return false;
-}
-if(!subcodeBox.value){
-showMessage("Please select a Sub Code.",true);
-subcodeBox.focus();
-return false;
-}
+if(!idBox.value||Number(idBox.value)<1){showMessage("Invalid Small Account ID.",true);return false}
+if(!nameBox.value.trim()){showMessage("Small Account Name is required.",true);nameBox.focus();return false}
+if(!subcodeBox.value){showMessage("Please select a Sub Code.",true);subcodeBox.focus();return false}
 return true;
 }
 async function saveRecord(event){
@@ -195,28 +150,17 @@ const id=Number(idBox.value);
 const name=nameBox.value.trim();
 const subcode=subcodeBox.value;
 const existing=records.find(x=>x.id===id);
-if(isNewRecord&&existing){
-showMessage("This Small Account ID already exists.",true);
-return;
-}
+if(isNewRecord&&existing){showMessage("This Small Account ID already exists.",true);return}
 saveButton.disabled=true;
 loading=true;
 try{
 const documentUrl=FIRESTORE_URL+"/"+id+"?updateMask.fieldPaths=smallaccountid&updateMask.fieldPaths=smallaccountname&updateMask.fieldPaths=subcode";
-const body={fields:{
-smallaccountid:{integerValue:String(id)},
-smallaccountname:{stringValue:name},
-subcode:{stringValue:subcode}
-}};
+const body={fields:{smallaccountid:{integerValue:String(id)},smallaccountname:{stringValue:name},subcode:{stringValue:subcode}}};
 await requestFirestore(documentUrl,{method:"PATCH",body:JSON.stringify(body)});
 await refreshAfterSave(id);
 showMessage(existing?"Small Account updated successfully.":"Small Account saved successfully.");
-}catch(error){
-showMessage(error.message,true);
-}finally{
-loading=false;
-saveButton.disabled=false;
-}
+}catch(error){showMessage(error.message,true)}
+finally{loading=false;saveButton.disabled=false}
 }
 async function refreshAfterSave(id){
 const data=await requestFirestore(FIRESTORE_URL+"?pageSize=1000");
@@ -226,22 +170,12 @@ if(currentIndex>=0)displayRecord(currentIndex);
 }
 async function navigateRecord(direction){
 if(loading)return;
-if(!records.length){
-showMessage("No records available.",true);
-return;
-}
-if(isNewRecord&&direction==="previous"){
-displayRecord(records.length-1);
-showMessage("Last record loaded.");
-return;
-}
+if(!records.length){showMessage("No records available.",true);return}
+if(isNewRecord&&direction==="previous"){displayRecord(records.length-1);showMessage("Last record loaded.");return}
 let index=currentIndex;
 if(direction==="next")index++;
 else index--;
-if(index<0||index>=records.length){
-showMessage(direction==="next"?"This is the last record.":"This is the first record.",true);
-return;
-}
+if(index<0||index>=records.length){showMessage(direction==="next"?"This is the last record.":"This is the first record.",true);return}
 displayRecord(index);
 showMessage("Record loaded.");
 }
@@ -254,20 +188,11 @@ deleteButton.disabled=true;
 try{
 await requestFirestore(FIRESTORE_URL+"/"+record.id,{method:"DELETE"});
 records=records.filter(x=>x.id!==record.id);
-if(records.length){
-currentIndex=Math.min(currentIndex,records.length-1);
-displayRecord(currentIndex);
-}else{
-currentIndex=-1;
-prepareNewRecord();
-}
+if(records.length){currentIndex=Math.min(currentIndex,records.length-1);displayRecord(currentIndex)}
+else{currentIndex=-1;prepareNewRecord()}
 showMessage("Small Account deleted successfully.");
-}catch(error){
-showMessage(error.message,true);
-deleteButton.disabled=false;
-}finally{
-loading=false;
-}
+}catch(error){showMessage(error.message,true);deleteButton.disabled=false}
+finally{loading=false}
 }
 document.getElementById("addButton").addEventListener("click",()=>{
 if(loading)return;
@@ -279,10 +204,7 @@ document.getElementById("previousButton").addEventListener("click",()=>navigateR
 document.getElementById("deleteButton").addEventListener("click",deleteRecord);
 document.getElementById("closeButton").addEventListener("click",()=>{
 const panel=document.getElementById("MainPanel");
-if(window.parent!==window&&panel){
-panel.innerHTML="";
-return;
-}
+if(window.parent!==window&&panel){panel.innerHTML="";return}
 if(window.history.length>1)window.history.back();
 else window.location.href="../Dashboard.html";
 });
