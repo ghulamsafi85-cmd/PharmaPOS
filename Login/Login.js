@@ -1,24 +1,13 @@
 
-let databaseReady=false;
 const REMEMBER_KEY="PharmaPOS_RememberedUsername";
 const ATTEMPT_KEY="PharmaPOS_LoginAttempts";
 const LOCK_TIME=5*60*1000;
 const ATTEMPT_WINDOW=5*60*1000;
-function loadScript(src){
-return new Promise((resolve,reject)=>{
-const script=document.createElement("script");
-script.src=src;
-script.onload=resolve;
-script.onerror=()=>reject(new Error("Failed to load "+src));
-document.head.appendChild(script);
-});
-}
+const WORKER_URL="https://young-river-e88c.ghulam-safi85.workers.dev/login";
+const FIRESTORE_URL="https://firestore.googleapis.com/v1/projects/pharmapos-896c2/databases/(default)/documents/users/";
 function showMessage(message,error=false){
 const element=document.getElementById("loginMessage");
-if(element){
-element.textContent=message;
-element.style.color=error?"#ffb3b3":"#ffffff";
-}
+if(element){element.textContent=message;element.style.color=error?"#ffb3b3":"#ffffff";}
 }
 function togglePassword(id){
 const input=document.getElementById(id);
@@ -29,35 +18,31 @@ const input=document.getElementById("username");
 if(input)input.focus();
 }
 function showNewUserForm(){
-document.getElementById("loginForm").classList.add("hidden");
-document.getElementById("newUserForm").classList.remove("hidden");
-document.getElementById("formTitle").textContent="Create Administrator";
-document.getElementById("formSubtitle").textContent="Create your first administrator account";
-showMessage("");
-document.getElementById("newUsername").focus();
+showMessage("Administrator account already exists. Please login.",true);
+showLoginForm();
 }
 function showLoginForm(message=""){
-document.getElementById("newUserForm").classList.add("hidden");
-document.getElementById("loginForm").classList.remove("hidden");
-document.getElementById("formTitle").textContent="Login";
-document.getElementById("formSubtitle").textContent="Welcome back, please sign in";
+const newForm=document.getElementById("newUserForm");
+const loginForm=document.getElementById("loginForm");
+if(newForm)newForm.classList.add("hidden");
+if(loginForm)loginForm.classList.remove("hidden");
+const title=document.getElementById("formTitle");
+const subtitle=document.getElementById("formSubtitle");
+if(title)title.textContent="Login";
+if(subtitle)subtitle.textContent="Welcome back, please sign in";
 showMessage(message);
 focusUsername();
 }
 function getAttemptData(){
-try{return JSON.parse(localStorage.getItem(ATTEMPT_KEY))||{attempts:[],lockUntil:0}}
-catch(e){return{attempts:[],lockUntil:0}}
+try{return JSON.parse(localStorage.getItem(ATTEMPT_KEY))||{attempts:[],lockUntil:0};}
+catch(e){return{attempts:[],lockUntil:0};}
 }
 function getRemainingLockTime(){
-const data=getAttemptData();
-return Math.max(0,data.lockUntil-Date.now());
+return Math.max(0,getAttemptData().lockUntil-Date.now());
 }
 function checkLoginLock(){
 const remaining=getRemainingLockTime();
-if(remaining>0){
-showMessage("Login locked. Try again in "+Math.ceil(remaining/1000)+" seconds.",true);
-return true;
-}
+if(remaining>0){showMessage("Login locked. Try again in "+Math.ceil(remaining/1000)+" seconds.",true);return true;}
 return false;
 }
 function recordFailedAttempt(){
@@ -80,77 +65,85 @@ localStorage.removeItem(ATTEMPT_KEY);
 }
 function loadRememberedUsername(){
 const saved=localStorage.getItem(REMEMBER_KEY);
-if(saved){
-document.getElementById("username").value=saved;
-document.getElementById("rememberMe").checked=true;
+const input=document.getElementById("username");
+const remember=document.getElementById("rememberMe");
+if(saved&&input&&remember){input.value=saved;remember.checked=true;}
 }
+async function firebaseLogin(username,password){
+const response=await fetch(WORKER_URL,{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({username,password})
+});
+const result=await response.json();
+if(!response.ok||!result.success)throw new Error(result.message||"Invalid username or password");
+return result;
+}
+async function getCloudUser(uid,idToken){
+const response=await fetch(FIRESTORE_URL+encodeURIComponent(uid),{
+method:"GET",
+headers:{"Authorization":"Bearer "+idToken}
+});
+if(!response.ok)throw new Error("Unable to read user profile from Firestore");
+const result=await response.json();
+const fields=result.fields||{};
+return{
+userid:Number(fields.userid?.integerValue||fields.userid?.doubleValue||0),
+username:fields.username?.stringValue||"",
+role:fields.role?.stringValue||""
+};
 }
 async function initializeLogin(){
-try{
-await loadScript("../Database/sql-wasm.js");
-await loadScript("../Database/database.js");
-await initDatabase("../Database/");
-databaseReady=true;
-if(getUsersCount()===0)showNewUserForm();
-else{
 loadRememberedUsername();
 showLoginForm();
-}
-}catch(error){
-showMessage("Database initialization failed. Please check the database files.",true);
-}
 }
 document.addEventListener("DOMContentLoaded",()=>{
 const loginForm=document.getElementById("loginForm");
 const newUserForm=document.getElementById("newUserForm");
 const usernameInput=document.getElementById("username");
 const rememberMe=document.getElementById("rememberMe");
-rememberMe.addEventListener("change",()=>{
+if(rememberMe)rememberMe.addEventListener("change",()=>{
 if(!rememberMe.checked)localStorage.removeItem(REMEMBER_KEY);
 });
-document.getElementById("forgotPassword").addEventListener("click",event=>{
+const forgotPassword=document.getElementById("forgotPassword");
+if(forgotPassword)forgotPassword.addEventListener("click",event=>{
 event.preventDefault();
 showMessage("Please contact your system administrator to reset your password.",true);
 });
-loginForm.addEventListener("submit",async event=>{
+if(loginForm)loginForm.addEventListener("submit",async event=>{
 event.preventDefault();
-if(!databaseReady)return showMessage("Database is not ready.",true);
 if(checkLoginLock())return;
-const username=usernameInput.value.trim();
-const userpassword=document.getElementById("userpassword").value;
-if(!username||!userpassword)return showMessage("Enter username and password.",true);
+const username=usernameInput?.value.trim()||"";
+const password=document.getElementById("userpassword")?.value||"";
+if(!username||!password)return showMessage("Enter username and password.",true);
+const submitButton=loginForm.querySelector('[type="submit"]');
+if(submitButton)submitButton.disabled=true;
+showMessage("Signing in...");
 try{
-const user=await checkUser(username,userpassword);
-if(!user){
-recordFailedAttempt();
-return;
-}
+const auth=await firebaseLogin(username,password);
+const user=await getCloudUser(auth.localId,auth.idToken);
+if(!user.userid||!user.username)throw new Error("User profile is incomplete");
+if(user.role!=="admin")throw new Error("Your account does not have administrator permission");
 clearFailedAttempts();
-if(rememberMe.checked)localStorage.setItem(REMEMBER_KEY,username);
+if(rememberMe?.checked)localStorage.setItem(REMEMBER_KEY,username);
 else localStorage.removeItem(REMEMBER_KEY);
-sessionStorage.setItem("currentUserId",user.userid);
+sessionStorage.setItem("currentUserId",String(user.userid));
 sessionStorage.setItem("currentUsername",user.username);
+sessionStorage.setItem("firebaseUid",auth.localId);
+sessionStorage.setItem("firebaseIdToken",auth.idToken);
+sessionStorage.setItem("firebaseRefreshToken",auth.refreshToken);
+sessionStorage.setItem("firebaseTokenExpiry",String(Date.now()+Number(auth.expiresIn)*1000));
 window.location.replace("../Dashboard.html");
 }catch(error){
-showMessage("Login failed. Please try again.",true);
+if(error.message==="Invalid username or password")recordFailedAttempt();
+else showMessage(error.message||"Login failed. Please try again.",true);
+}finally{
+if(submitButton)submitButton.disabled=false;
 }
 });
-newUserForm.addEventListener("submit",async event=>{
+if(newUserForm)newUserForm.addEventListener("submit",event=>{
 event.preventDefault();
-if(!databaseReady)return showMessage("Database is not ready.",true);
-const username=document.getElementById("newUsername").value.trim();
-const userpassword=document.getElementById("newPassword").value;
-const confirmPassword=document.getElementById("confirmPassword").value;
-if(!username||!userpassword)return showMessage("Enter username and password.",true);
-if(userpassword!==confirmPassword)return showMessage("Passwords do not match.",true);
-try{
-await createUser(username,userpassword);
-newUserForm.reset();
-loginForm.reset();
-showLoginForm("Administrator created successfully. Please login.");
-}catch(error){
-showMessage("Unable to create user. Username may already exist.",true);
-}
+showMessage("Administrator already exists. Please login.",true);
 });
 initializeLogin();
 });
