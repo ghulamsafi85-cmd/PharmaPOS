@@ -32,9 +32,7 @@ h2{font-size:27px;font-weight:700;letter-spacing:.4px;color:#f1d9a5;margin-botto
 .previous{background:linear-gradient(135deg,#7761a8,#594786)}
 .delete{background:linear-gradient(135deg,#a74d59,#813943)}
 .close{background:linear-gradient(135deg,#64748b,#465467)}
-#message{min-height:20px;margin-top:12px;font-size:12px;font-weight:600;color:#d9e8f0;line-height:1.5;overflow-wrap:anywhere}
-#message.error{color:#ffaaaa}
-#message.success{color:#a9e7c3}
+#message{display:none!important}
 @media(max-width:480px){
 body{padding:8px}
 .user-container{padding:10px;border-radius:20px}
@@ -45,7 +43,6 @@ h2{font-size:24px;margin-bottom:13px}
 .input-group input{font-size:14px;padding:0 9px}
 .buttons{gap:6px;margin-top:12px}
 .buttons button{height:39px;font-size:10px}
-#message{font-size:11px;margin-top:9px}
 }
 @media(max-height:600px){
 .user-container{padding:8px}
@@ -55,7 +52,6 @@ h2{font-size:22px;margin-bottom:8px}
 .input-group{height:37px}
 .buttons{gap:5px;margin-top:9px}
 .buttons button{height:34px}
-#message{margin-top:6px;min-height:16px}
 }
 </style>
 </head>
@@ -90,7 +86,7 @@ h2{font-size:22px;margin-bottom:8px}
 <button id="deleteBtn" class="delete" type="button" onclick="deleteUser()" disabled>🗑 Delete</button>
 <button class="close" type="button" onclick="closeForm()">✖ Close</button>
 </div>
-<p id="message">Connecting to cloud...</p>
+<p id="message"></p>
 </section>
 </div>
 </div>
@@ -103,21 +99,12 @@ let currentUid=null;
 let ready=false;
 let busy=false;
 const el=id=>document.getElementById(id);
-function showMessage(message,type=""){
-el("message").textContent=message;
-el("message").className=type;
-}
-function adminToken(){
-return sessionStorage.getItem("firebaseIdToken")||"";
-}
+function adminToken(){return sessionStorage.getItem("firebaseIdToken")||"";}
 function setButtons(){
 const enabled=ready&&!busy;
 ["addBtn","saveBtn","nextBtn","previousBtn","deleteBtn"].forEach(id=>el(id).disabled=!enabled);
 }
-function setBusy(value){
-busy=value;
-setButtons();
-}
+function setBusy(value){busy=value;setButtons();}
 async function request(path,data={}){
 const token=adminToken();
 if(!token)throw new Error("Administrator session expired. Please login again.");
@@ -138,14 +125,13 @@ function nextId(){
 const adminId=Number(sessionStorage.getItem("currentUserId"))||1;
 return users.reduce((max,u)=>Math.max(max,Number(u.userid)||0),adminId)+1;
 }
-function clearFields(message=""){
+function clearFields(){
 el("userid").value=nextId();
 el("username").value="";
 el("email").value="";
 el("userpassword").value="";
 currentUid=null;
 currentIndex=-1;
-if(message)showMessage(message);
 }
 function showRecord(index){
 if(index<0||index>=users.length)return false;
@@ -156,7 +142,6 @@ el("userid").value=user.userid;
 el("username").value=user.username||"";
 el("email").value=user.email||"";
 el("userpassword").value="";
-showMessage("User record loaded.","success");
 return true;
 }
 async function loadUsers(selectUid=null){
@@ -165,16 +150,13 @@ users=Array.isArray(result.users)?result.users:[];
 users.sort((a,b)=>(Number(a.userid)||0)-(Number(b.userid)||0));
 if(selectUid){
 const index=users.findIndex(u=>u.uid===selectUid);
-if(index>=0){
-showRecord(index);
-return;
+if(index>=0){showRecord(index);return;}
 }
-}
-clearFields(users.length?"Ready for a new user.":"No users found. Ready to add a new user.");
+clearFields();
 }
 function addNew(){
 if(!ready||busy)return;
-clearFields("New user form is ready.","success");
+clearFields();
 el("username").focus();
 }
 function validateUser(){
@@ -193,9 +175,8 @@ return {username,email,password,userid};
 async function saveUser(){
 if(!ready||busy)return;
 let data;
-try{data=validateUser();}catch(e){showMessage(e.message,"error");return;}
+try{data=validateUser();}catch(e){alert(e.message);return;}
 setBusy(true);
-showMessage(currentUid?"Updating user...":"Creating new user...");
 try{
 let result;
 if(currentUid){
@@ -206,41 +187,40 @@ result=await request("/update-user",payload);
 result=await request("/create-user",{userid:data.userid,username:data.username,email:data.email,password:data.password});
 }
 await loadUsers(result.uid||currentUid);
-showMessage(result.message||"User saved successfully.","success");
+alert(result.message||"User saved successfully.");
 }catch(e){
-showMessage(e.message||"Unable to save user.","error");
+alert(e.message||"Unable to save user.");
 }finally{setBusy(false);}
 }
 function nextRecord(){
 if(!ready||busy)return;
-if(!users.length){showMessage("No user records found.","error");return;}
+if(!users.length){alert("No user records found.");return;}
 if(currentIndex<0){showRecord(0);return;}
-if(currentIndex>=users.length-1){showMessage("Last record reached.");return;}
+if(currentIndex>=users.length-1){alert("Last record reached.");return;}
 showRecord(currentIndex+1);
 }
 function previousRecord(){
 if(!ready||busy)return;
-if(!users.length){showMessage("No user records found.","error");return;}
+if(!users.length){alert("No user records found.");return;}
 if(currentIndex<0){showRecord(users.length-1);return;}
-if(currentIndex===0){showMessage("First record reached.");return;}
+if(currentIndex===0){alert("First record reached.");return;}
 showRecord(currentIndex-1);
 }
 async function deleteUser(){
 if(!ready||busy)return;
-if(!currentUid){showMessage("Please select a user first.","error");return;}
+if(!currentUid){alert("Please select a user first.");return;}
 const selectedUid=currentUid;
 const selectedIndex=currentIndex;
 if(!confirm("Are you sure you want to delete this user?"))return;
 setBusy(true);
-showMessage("Deleting user...");
 try{
 const result=await request("/delete-user",{uid:selectedUid});
 await loadUsers();
 if(users.length)showRecord(Math.min(selectedIndex,users.length-1));
-else clearFields("No user records remain.");
-showMessage(result.message||"User deleted successfully.","success");
+else clearFields();
+alert(result.message||"User deleted successfully.");
 }catch(e){
-showMessage(e.message||"Delete failed.","error");
+alert(e.message||"Unable to delete user.");
 }finally{setBusy(false);}
 }
 function closeForm(){
@@ -252,18 +232,19 @@ if(panel){panel.innerHTML="";return;}
 }catch(e){}
 window.close();
 }
-async function startForm(){
-try{
-if(!adminToken())throw new Error("Administrator session expired. Please login again.");
-await loadUsers();
+function startForm(){
+clearFields();
+if(!adminToken()){ready=false;setButtons();return;}
+request("/list-users").then(result=>{
+users=Array.isArray(result.users)?result.users:[];
+users.sort((a,b)=>(Number(a.userid)||0)-(Number(b.userid)||0));
+clearFields();
 ready=true;
 setButtons();
-showMessage("Cloud connection successful.","success");
-}catch(e){
+}).catch(()=>{
 ready=false;
 setButtons();
-showMessage(e.message||"Unable to connect to cloud.","error");
-}
+});
 }
 startForm();
 </script>
