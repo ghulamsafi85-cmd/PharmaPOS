@@ -35,7 +35,7 @@ h2{color:white;font-size:30px;font-weight:700;margin-bottom:25px;text-shadow:0 3
 .user-container{padding:25px 10px;border-radius:25px}
 .user-card{padding:22px 15px 25px;border-radius:22px}
 h2{font-size:25px;margin-bottom:22px}
-.input-group{height:58px;margin-bottom:14px}
+.input-group{height:58px;margin-bottom:12px}
 .input-group input{font-size:15px;padding:0 10px}
 .buttons{gap:6px}
 .buttons button{height:43px;font-size:11px}
@@ -58,6 +58,10 @@ h2{font-size:25px;margin-bottom:22px}
 <input id="username" type="text" placeholder="User Name" autocomplete="off">
 </div>
 <div class="input-group">
+<svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="m3 7 9 7 9-7"/></svg>
+<input id="email" type="email" placeholder="Email Address" autocomplete="off">
+</div>
+<div class="input-group">
 <svg viewBox="0 0 24 24"><rect x="3" y="10" width="18" height="12" rx="2"/><path d="M7 10V7a5 5 0 0110 0v3M12 15v3"/></svg>
 <input id="userpassword" type="password" placeholder="User Password" autocomplete="new-password">
 </div>
@@ -70,149 +74,156 @@ h2{font-size:25px;margin-bottom:22px}
 <button class="delete" onclick="deleteUser()" disabled>🗑 Delete</button>
 <button class="close" onclick="closeForm()">✖ Close</button>
 </div>
-<p id="message">Preparing database...</p>
+<p id="message">Connecting to cloud...</p>
 </section>
 </div>
 </div>
-<script src="./sql-wasm.js"></script>
-<script src="./Database/database.js"></script>
 <script>
-let currentId=null;
-let databaseReady=false;
-function showMessage(text,error=false){
-const m=document.getElementById("message");
-m.textContent=text;
-m.style.color=error?"#ffb3b3":"#ffffff";
+const WORKER_URL="https://young-river-e88c.ghulam-safi85.workers.dev";
+const REQUEST_TIMEOUT=20000;
+let users=[];
+let currentIndex=-1;
+let currentUid=null;
+let ready=false;
+let busy=false;
+const el=id=>document.getElementById(id);
+function showMessage(message,error=false){
+el("message").textContent=message;
+el("message").style.color=error?"#ffb3b3":"#ffffff";
 }
-function focusUsername(){
-document.getElementById("username").focus();
+function setButtons(enabled){
+document.querySelectorAll(".buttons button:not(.close)").forEach(b=>b.disabled=!enabled||busy);
 }
-function setButtonsEnabled(enabled){
-document.querySelectorAll(".buttons button:not(.close)").forEach(button=>button.disabled=!enabled);
+function setBusy(value){
+busy=value;
+setButtons(ready);
+}
+function adminToken(){
+return sessionStorage.getItem("firebaseIdToken")||"";
+}
+async function request(path,data={}){
+const token=adminToken();
+if(!token)throw new Error("Administrator session expired. Please login again.");
+const controller=new AbortController();
+const timer=setTimeout(()=>controller.abort(),REQUEST_TIMEOUT);
+try{
+const response=await fetch(WORKER_URL+path,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...data,adminToken:token}),signal:controller.signal,cache:"no-store"});
+const result=await response.json();
+if(!response.ok||!result.success)throw new Error(result.message||"Cloud request failed.");
+return result;
+}catch(e){
+if(e.name==="AbortError")throw new Error("Connection timed out. Please try again.");
+throw e;
+}finally{clearTimeout(timer);}
 }
 function nextId(){
-const r=db.exec("SELECT COALESCE(MAX(userid),0)+1 FROM users");
-return r[0].values[0][0];
+return users.reduce((max,u)=>Math.max(max,Number(u.userid)||0),0)+1;
 }
 function clearFields(message="",id=null){
-document.getElementById("userid").value=id===null?nextId():id;
-document.getElementById("username").value="";
-document.getElementById("userpassword").value="";
-document.getElementById("userpassword").type="password";
-currentId=null;
+el("userid").value=id===null?nextId():id;
+el("username").value="";
+el("email").value="";
+el("userpassword").value="";
+currentUid=null;
+currentIndex=-1;
 if(message)showMessage(message);
-focusUsername();
+el("username").focus();
 }
-function readRecord(id){
-const s=db.prepare("SELECT userid,username FROM users WHERE userid=?");
-try{
-s.bind([id]);
-if(!s.step())return false;
-const r=s.getAsObject();
-document.getElementById("userid").value=r.userid;
-document.getElementById("username").value=r.username;
-document.getElementById("userpassword").value="";
-document.getElementById("userpassword").type="password";
-currentId=r.userid;
-focusUsername();
+function showRecord(index){
+if(index<0||index>=users.length)return false;
+const user=users[index];
+currentIndex=index;
+currentUid=user.uid;
+el("userid").value=user.userid;
+el("username").value=user.username;
+el("email").value=user.email;
+el("userpassword").value="";
+showMessage("User record loaded.");
+el("username").focus();
 return true;
-}finally{s.free()}
+}
+async function loadUsers(selectUid=null){
+const result=await request("/list-users");
+users=(result.users||[]).sort((a,b)=>Number(a.userid)-Number(b.userid));
+if(selectUid){
+const index=users.findIndex(u=>u.uid===selectUid);
+if(index>=0){showRecord(index);return;}
+}
+if(users.length)showRecord(0);
+else clearFields("No users found. Ready to add a new user.");
 }
 function addNew(){
-if(!databaseReady)return;
-try{clearFields("Ready for a new user.")}
-catch(e){showMessage("Database error: "+e.message,true)}
+if(!ready||busy)return;
+clearFields("Ready for a new user.");
 }
 async function saveUser(){
-if(!databaseReady)return;
-const id=Number(document.getElementById("userid").value);
-const username=document.getElementById("username").value.trim();
-const password=document.getElementById("userpassword").value;
-if(!id||!username)return showMessage("Please enter a username.",true);
+if(!ready||busy)return;
+const username=el("username").value.trim();
+const email=el("email").value.trim();
+const password=el("userpassword").value;
+const userid=Number(el("userid").value);
+if(!username)return showMessage("Please enter a username.",true);
+if(!email)return showMessage("Please enter an email address.",true);
+if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return showMessage("Please enter a valid email address.",true);
+if(!currentUid&&password.length<6)return showMessage("Password must contain at least 6 characters.",true);
+if(password&&password.length<6)return showMessage("Password must contain at least 6 characters.",true);
+if(!Number.isInteger(userid)||userid<1)return showMessage("Invalid User ID.",true);
+setBusy(true);
+showMessage("Saving user...");
 try{
-const exists=db.prepare("SELECT userid FROM users WHERE userid=?");
-let found=false;
-try{exists.bind([id]);found=exists.step()}finally{exists.free()}
-if(password){
-const hashedPassword=await hashPassword(password);
-if(found){
-const s=db.prepare("UPDATE users SET username=?,userpassword=? WHERE userid=?");
-try{s.run([username,hashedPassword,id])}finally{s.free()}
+let result;
+if(currentUid){
+result=await request("/update-user",{uid:currentUid,username,email,password});
 }else{
-const s=db.prepare("INSERT INTO users(userid,username,userpassword) VALUES(?,?,?)");
-try{s.run([id,username,hashedPassword])}finally{s.free()}
+result=await request("/create-user",{userid,username,email,password});
 }
-}else{
-if(!found)return showMessage("Please enter a password for the new user.",true);
-const s=db.prepare("UPDATE users SET username=? WHERE userid=?");
-try{s.run([username,id])}finally{s.free()}
-}
-saveDatabase();
-readRecord(id);
-showMessage("User saved successfully.");
-}catch(e){showMessage("Unable to save: "+e.message,true)}
+await loadUsers(result.uid||currentUid);
+showMessage(result.message||"User saved successfully.");
+}catch(e){showMessage(e.message||"Unable to save user.",true);}
+finally{setBusy(false);}
 }
 function nextRecord(){
-if(!databaseReady)return;
-try{
-let id=null;
-if(currentId===null){
-const r=db.exec("SELECT MIN(userid) FROM users");
-if(r.length)id=r[0].values[0][0];
-}else{
-const s=db.prepare("SELECT MIN(userid) FROM users WHERE userid>?");
-try{s.bind([currentId]);if(s.step())id=s.get()[0]}finally{s.free()}
-}
-if(id===null)return clearFields("Last record reached. Ready for a new user.");
-readRecord(id);
-showMessage("Next record loaded.");
-}catch(e){showMessage("Database error: "+e.message,true)}
+if(!ready||busy)return;
+if(!users.length)return clearFields("No user records found.");
+if(currentIndex<0||currentIndex>=users.length-1)return showMessage("Last record reached.");
+showRecord(currentIndex+1);
 }
 function previousRecord(){
-if(!databaseReady)return;
-try{
-let id=null;
-if(currentId===null){
-const r=db.exec("SELECT MAX(userid) FROM users");
-if(r.length)id=r[0].values[0][0];
-}else{
-const s=db.prepare("SELECT MAX(userid) FROM users WHERE userid<?");
-try{s.bind([currentId]);if(s.step())id=s.get()[0]}finally{s.free()}
+if(!ready||busy)return;
+if(!users.length)return clearFields("No user records found.");
+if(currentIndex<=0)return showMessage("First record reached.");
+showRecord(currentIndex-1);
 }
-if(id===null)return clearFields("First record reached. Ready for a new user.");
-readRecord(id);
-showMessage("Previous record loaded.");
-}catch(e){showMessage("Database error: "+e.message,true)}
-}
-function deleteUser(){
-if(!databaseReady)return;
+async function deleteUser(){
+if(!ready||busy)return;
+if(!currentUid)return showMessage("Please select a user first.",true);
+if(!confirm("Are you sure you want to delete this user?"))return;
+const deletedUid=currentUid;
+setBusy(true);
+showMessage("Deleting user...");
 try{
-const id=Number(document.getElementById("userid").value);
-if(!id||!confirm("Are you sure you want to delete this user?"))return;
-const s=db.prepare("DELETE FROM users WHERE userid=?");
-try{s.run([id])}finally{s.free()}
-saveDatabase();
-clearFields("User deleted successfully.");
-}catch(e){showMessage("Delete failed: "+e.message,true)}
+const result=await request("/delete-user",{uid:deletedUid});
+await loadUsers();
+showMessage(result.message||"User deleted successfully.");
+}catch(e){showMessage(e.message||"Delete failed.",true);}
+finally{setBusy(false);}
 }
 function closeForm(){
-window.parent.document.getElementById("MainPanel").innerHTML="";
+const panel=window.parent.document.getElementById("MainPanel");
+if(panel)panel.innerHTML="";
+else window.close();
 }
 async function startForm(){
 try{
-if(!window.initSqlJs)throw new Error("SQL.js library failed to load.");
-if(!db){
-sqlite=await window.initSqlJs({locateFile:file=>"./"+file});
-const savedData=localStorage.getItem("PharmaPOS.db");
-db=savedData?new sqlite.Database(base64ToBytes(savedData)):new sqlite.Database();
-db.run("CREATE TABLE IF NOT EXISTS users (userid INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT NOT NULL UNIQUE, userpassword TEXT NOT NULL)");
-}
-const id=nextId();
-databaseReady=true;
-setButtonsEnabled(true);
-clearFields("Ready.",id);
+if(!adminToken())throw new Error("Administrator session expired. Please login again.");
+await loadUsers();
+ready=true;
+setButtons(true);
+showMessage("Cloud connection successful.");
 }catch(e){
-showMessage("Database initialization failed: "+(e.message||e),true);
+ready=false;
+setButtons(false);
+showMessage(e.message||"Unable to connect to cloud.",true);
 }
 }
 startForm();
