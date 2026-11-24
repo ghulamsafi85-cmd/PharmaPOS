@@ -9,7 +9,7 @@
 *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,Helvetica,sans-serif}
 html,body{width:100%;height:100%;overflow:hidden}
 body{display:flex;align-items:center;justify-content:center;padding:12px;background:#e9eef4;color:#243449}
-.user-wrapper{width:100%;max-width:560px;padding:0;background:#fff;border:1px solid #d9e1e9;border-radius:9px;box-shadow:0 8px 28px rgba(35,54,75,.12)}
+.user-wrapper{width:100%;max-width:560px;background:#fff;border:1px solid #d9e1e9;border-radius:9px;box-shadow:0 8px 28px rgba(35,54,75,.12)}
 .user-container{padding:25px 30px}
 .user-card{width:100%;max-width:440px;margin:auto}
 h2{font-size:23px;font-weight:600;color:#254b68;text-align:center;margin-bottom:22px;padding-bottom:14px;border-bottom:1px solid #e5ebf0}
@@ -57,7 +57,7 @@ h2{font-size:20px;margin-bottom:9px;padding-bottom:8px}
 <div class="user-wrapper">
 <div class="user-container">
 <section class="user-card">
-<h2>Add New User</h2>
+<h2>New User Registration</h2>
 <div class="fields">
 <div class="input-group">
 <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10M7 12h6M7 16h4"/></svg>
@@ -73,7 +73,7 @@ h2{font-size:20px;margin-bottom:9px;padding-bottom:8px}
 </div>
 <div class="input-group">
 <svg viewBox="0 0 24 24"><rect x="3" y="10" width="18" height="12" rx="2"/><path d="M7 10V7a5 5 0 0110 0v3M12 15v3"/></svg>
-<input id="userpassword" type="password" placeholder="User Password" autocomplete="new-password">
+<input id="userpassword" type="password" placeholder="Enter Your Own Password" autocomplete="off" autocapitalize="off" spellcheck="false">
 </div>
 </div>
 <div class="buttons">
@@ -171,9 +171,11 @@ loadingPromise=null;
 }
 function startForm(){
 clearFields();
+el("username").focus();
 loadingPromise=loadUsers().then(()=>{
 ready=true;
 clearFields();
+el("username").focus();
 }).catch(()=>{
 ready=false;
 }).finally(()=>{
@@ -196,7 +198,7 @@ const userid=Number(el("userid").value);
 if(!username)throw new Error("Please enter a username.");
 if(!email)throw new Error("Please enter an email address.");
 if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))throw new Error("Please enter a valid email address.");
-if(!currentUid&&password.length<6)throw new Error("Password must contain at least 6 characters.");
+if(!currentUid&&password.length<6)throw new Error("Please enter your own password. Password must contain at least 6 characters.");
 if(password&&password.length<6)throw new Error("Password must contain at least 6 characters.");
 if(!Number.isInteger(userid)||userid<1)throw new Error("Invalid User ID.");
 return {username,email,password,userid};
