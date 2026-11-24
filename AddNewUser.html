@@ -7,20 +7,21 @@
 <title>Add New User</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,Helvetica,sans-serif}
-body{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:radial-gradient(circle at 15% 20%,#087eaa,#07152e 48%,#160d36);color:white}
-.user-wrapper{width:100%;max-width:620px;padding:2px;border-radius:30px;background:linear-gradient(135deg,#32eaff,#293cce,#a34af5,#24dfff);box-shadow:0 0 40px rgba(0,180,255,.2)}
-.user-container{padding:25px 20px;border-radius:28px;background:linear-gradient(135deg,rgba(9,185,212,.75),rgba(23,58,145,.85) 48%,rgba(164,79,229,.8));backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
-.user-card{width:100%;max-width:470px;margin:auto;padding:25px 30px 28px;border:1px solid rgba(255,255,255,.4);border-radius:25px;background:rgba(255,255,255,.12);backdrop-filter:blur(25px);-webkit-backdrop-filter:blur(25px);box-shadow:0 12px 35px rgba(0,0,0,.2);text-align:center}
-h2{color:white;font-size:30px;font-weight:700;margin-bottom:25px;text-shadow:0 3px 5px rgba(0,0,0,.2)}
+html,body{width:100%;height:100%;overflow:hidden}
+body{display:flex;align-items:center;justify-content:center;padding:10px;background:radial-gradient(circle at 15% 20%,#087eaa,#07152e 48%,#160d36);color:white}
+.user-wrapper{width:100%;max-width:620px;max-height:calc(100vh - 20px);padding:2px;border-radius:30px;background:linear-gradient(135deg,#32eaff,#293cce,#a34af5,#24dfff);box-shadow:0 0 40px rgba(0,180,255,.2)}
+.user-container{padding:14px 16px;border-radius:28px;background:linear-gradient(135deg,rgba(9,185,212,.75),rgba(23,58,145,.85) 48%,rgba(164,79,229,.8));backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+.user-card{width:100%;max-width:470px;margin:auto;padding:17px 30px 18px;border:1px solid rgba(255,255,255,.4);border-radius:25px;background:rgba(255,255,255,.12);backdrop-filter:blur(25px);-webkit-backdrop-filter:blur(25px);box-shadow:0 12px 35px rgba(0,0,0,.2);text-align:center}
+h2{color:white;font-size:30px;font-weight:700;margin-bottom:12px;text-shadow:0 3px 5px rgba(0,0,0,.2)}
 .fields{display:flex;flex-direction:column;gap:0}
-.input-group{height:58px;width:100%;margin-bottom:10px;border-radius:16px;display:flex;align-items:center;padding:0 16px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.25)}
+.input-group{height:48px;width:100%;margin-bottom:6px;border-radius:14px;display:flex;align-items:center;padding:0 16px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.25)}
 .input-group>svg{width:25px;height:25px;fill:none;stroke:white;stroke-width:2;flex-shrink:0}
 .input-group input{flex:1;min-width:0;width:100%;height:100%;border:0!important;outline:0!important;box-shadow:none!important;background:transparent!important;color:#fff!important;-webkit-text-fill-color:#fff!important;caret-color:#fff;font-size:17px;padding:0 15px;text-align:center}
 .input-group input:focus,.input-group input:active{border:0!important;outline:0!important;box-shadow:none!important;background:transparent!important;color:#fff!important;-webkit-text-fill-color:#fff!important}
 .input-group input::placeholder{color:rgba(255,255,255,.85);-webkit-text-fill-color:rgba(255,255,255,.85)}
 .input-group input:-webkit-autofill,.input-group input:-webkit-autofill:hover,.input-group input:-webkit-autofill:focus{-webkit-text-fill-color:#fff!important;-webkit-box-shadow:0 0 0 1000px transparent inset!important;box-shadow:0 0 0 1000px transparent inset!important;transition:background-color 9999s ease-in-out 0s}
-.buttons{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:5px}
-.buttons button{width:100%;height:48px;border:1px solid rgba(255,255,255,.3);border-radius:12px;color:white;font-size:13px;font-weight:bold;cursor:pointer;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 4px 12px rgba(0,0,0,.16),inset 0 1px 1px rgba(255,255,255,.15);transition:.2s}
+.buttons{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:3px}
+.buttons button{width:100%;height:45px;border:1px solid rgba(255,255,255,.3);border-radius:12px;color:white;font-size:13px;font-weight:bold;cursor:pointer;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 4px 12px rgba(0,0,0,.16),inset 0 1px 1px rgba(255,255,255,.15);transition:.2s}
 .buttons button:active{transform:scale(.96)}
 .buttons button:hover{filter:brightness(1.2)}
 .buttons button:disabled{opacity:.45;cursor:not-allowed;filter:none}
@@ -30,16 +31,25 @@ h2{color:white;font-size:30px;font-weight:700;margin-bottom:25px;text-shadow:0 3
 .previous{background:rgba(124,58,237,.65)}
 .delete{background:rgba(220,53,69,.7)}
 .close{background:rgba(71,85,105,.7)}
-#message{min-height:24px;margin-top:17px;font-size:14px;font-weight:600;color:white;line-height:1.5;overflow-wrap:anywhere}
+#message{min-height:20px;margin-top:9px;font-size:14px;font-weight:600;color:white;line-height:1.4;overflow-wrap:anywhere}
 @media(max-width:480px){
-.user-container{padding:25px 10px;border-radius:25px}
-.user-card{padding:22px 15px 25px;border-radius:22px}
-h2{font-size:25px;margin-bottom:22px}
-.input-group{height:58px;margin-bottom:12px}
+.user-container{padding:12px 10px;border-radius:25px}
+.user-card{padding:16px 15px 17px;border-radius:22px}
+h2{font-size:25px;margin-bottom:11px}
+.input-group{height:46px;margin-bottom:6px}
 .input-group input{font-size:15px;padding:0 10px}
 .buttons{gap:6px}
-.buttons button{height:43px;font-size:11px}
+.buttons button{height:42px;font-size:11px}
 #message{font-size:12px}
+}
+@media(max-height:600px){
+.user-container{padding:8px 12px}
+.user-card{padding:10px 24px}
+h2{font-size:24px;margin-bottom:8px}
+.input-group{height:40px;margin-bottom:4px}
+.buttons{gap:5px;margin-top:2px}
+.buttons button{height:38px}
+#message{margin-top:5px;min-height:17px}
 }
 </style>
 </head>
@@ -117,7 +127,8 @@ throw e;
 }finally{clearTimeout(timer);}
 }
 function nextId(){
-return users.reduce((max,u)=>Math.max(max,Number(u.userid)||0),0)+1;
+const adminId=Number(sessionStorage.getItem("currentUserId"))||1;
+return users.reduce((max,u)=>Math.max(max,Number(u.userid)||0),adminId)+1;
 }
 function clearFields(message="",id=null){
 el("userid").value=id===null?nextId():id;
@@ -127,7 +138,6 @@ el("userpassword").value="";
 currentUid=null;
 currentIndex=-1;
 if(message)showMessage(message);
-el("username").focus();
 }
 function showRecord(index){
 if(index<0||index>=users.length)return false;
@@ -149,8 +159,7 @@ if(selectUid){
 const index=users.findIndex(u=>u.uid===selectUid);
 if(index>=0){showRecord(index);return;}
 }
-if(users.length)showRecord(0);
-else clearFields("No users found. Ready to add a new user.");
+clearFields(users.length?"Ready for a new user.":"No users found. Ready to add a new user.");
 }
 function addNew(){
 if(!ready||busy)return;
