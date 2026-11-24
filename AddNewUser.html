@@ -3,53 +3,59 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Add New User</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,Helvetica,sans-serif}
 html,body{width:100%;height:100%;overflow:hidden}
-body{display:flex;align-items:center;justify-content:center;padding:10px;background:radial-gradient(circle at 15% 20%,#087eaa,#07152e 48%,#160d36);color:white}
-.user-wrapper{width:100%;max-width:620px;max-height:calc(100vh - 20px);padding:2px;border-radius:30px;background:linear-gradient(135deg,#32eaff,#293cce,#a34af5,#24dfff);box-shadow:0 0 40px rgba(0,180,255,.2)}
-.user-container{padding:14px 16px;border-radius:28px;background:linear-gradient(135deg,rgba(9,185,212,.75),rgba(23,58,145,.85) 48%,rgba(164,79,229,.8));backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
-.user-card{width:100%;max-width:470px;margin:auto;padding:17px 30px 18px;border:1px solid rgba(255,255,255,.4);border-radius:25px;background:rgba(255,255,255,.12);backdrop-filter:blur(25px);-webkit-backdrop-filter:blur(25px);box-shadow:0 12px 35px rgba(0,0,0,.2);text-align:center}
-h2{color:white;font-size:30px;font-weight:700;margin-bottom:12px;text-shadow:0 3px 5px rgba(0,0,0,.2)}
-.fields{display:flex;flex-direction:column;gap:0}
-.input-group{height:48px;width:100%;margin-bottom:6px;border-radius:14px;display:flex;align-items:center;padding:0 16px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.25)}
-.input-group>svg{width:25px;height:25px;fill:none;stroke:white;stroke-width:2;flex-shrink:0}
-.input-group input{flex:1;min-width:0;width:100%;height:100%;border:0!important;outline:0!important;box-shadow:none!important;background:transparent!important;color:#fff!important;-webkit-text-fill-color:#fff!important;caret-color:#fff;font-size:17px;padding:0 15px;text-align:center}
-.input-group input:focus,.input-group input:active{border:0!important;outline:0!important;box-shadow:none!important;background:transparent!important;color:#fff!important;-webkit-text-fill-color:#fff!important}
-.input-group input::placeholder{color:rgba(255,255,255,.85);-webkit-text-fill-color:rgba(255,255,255,.85)}
-.input-group input:-webkit-autofill,.input-group input:-webkit-autofill:hover,.input-group input:-webkit-autofill:focus{-webkit-text-fill-color:#fff!important;-webkit-box-shadow:0 0 0 1000px transparent inset!important;box-shadow:0 0 0 1000px transparent inset!important;transition:background-color 9999s ease-in-out 0s}
-.buttons{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:3px}
-.buttons button{width:100%;height:45px;border:1px solid rgba(255,255,255,.3);border-radius:12px;color:white;font-size:13px;font-weight:bold;cursor:pointer;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 4px 12px rgba(0,0,0,.16),inset 0 1px 1px rgba(255,255,255,.15);transition:.2s}
-.buttons button:active{transform:scale(.96)}
-.buttons button:hover{filter:brightness(1.2)}
-.buttons button:disabled{opacity:.45;cursor:not-allowed;filter:none}
-.add{background:rgba(8,126,139,.65)}
-.save{background:rgba(22,128,60,.65)}
-.next{background:rgba(37,99,235,.65)}
-.previous{background:rgba(124,58,237,.65)}
-.delete{background:rgba(220,53,69,.7)}
-.close{background:rgba(71,85,105,.7)}
-#message{min-height:20px;margin-top:9px;font-size:14px;font-weight:600;color:white;line-height:1.4;overflow-wrap:anywhere}
+body{display:flex;align-items:center;justify-content:center;padding:12px;background:radial-gradient(ellipse at 15% 10%,#174c70 0%,#10243d 42%,#10152d 100%);color:#fff}
+.user-wrapper{width:100%;max-width:590px;padding:1px;border-radius:25px;background:linear-gradient(135deg,rgba(151,220,229,.8),rgba(75,131,169,.45),rgba(173,151,211,.65));box-shadow:0 24px 65px rgba(0,0,0,.38)}
+.user-container{padding:15px;border-radius:24px;background:linear-gradient(145deg,rgba(28,76,105,.96),rgba(26,43,75,.98) 55%,rgba(49,48,86,.96));backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+.user-card{width:100%;max-width:455px;margin:auto;padding:22px 30px 17px;border:1px solid rgba(220,239,255,.18);border-radius:19px;background:linear-gradient(145deg,rgba(255,255,255,.075),rgba(255,255,255,.025));box-shadow:0 14px 35px rgba(0,0,0,.2),inset 0 1px rgba(255,255,255,.1);text-align:center}
+h2{font-size:27px;font-weight:700;letter-spacing:.4px;color:#f1d9a5;margin-bottom:17px;text-shadow:0 2px 8px rgba(0,0,0,.25)}
+.fields{display:flex;flex-direction:column;gap:8px}
+.input-group{height:46px;width:100%;border-radius:11px;display:flex;align-items:center;padding:0 13px;background:rgba(7,20,39,.28);border:1px solid rgba(194,220,240,.22);box-shadow:inset 0 2px 5px rgba(0,0,0,.12);transition:border-color .2s,background .2s,box-shadow .2s}
+.input-group:focus-within{border-color:rgba(145,211,224,.8);background:rgba(7,20,39,.4);box-shadow:0 0 0 3px rgba(90,174,194,.1)}
+.input-group>svg{width:21px;height:21px;fill:none;stroke:#b9d7e4;stroke-width:1.7;flex-shrink:0}
+.input-group input{flex:1;min-width:0;width:100%;height:100%;border:0!important;outline:0!important;box-shadow:none!important;background:transparent!important;color:#fff!important;-webkit-text-fill-color:#fff!important;caret-color:#fff;font-size:15px;padding:0 13px;text-align:center}
+.input-group input::placeholder{color:rgba(222,235,245,.72);-webkit-text-fill-color:rgba(222,235,245,.72)}
+.input-group input:read-only{color:#f1d9a5!important;-webkit-text-fill-color:#f1d9a5!important;cursor:default}
+.input-group input:-webkit-autofill,.input-group input:-webkit-autofill:hover,.input-group input:-webkit-autofill:focus{-webkit-text-fill-color:#fff!important;-webkit-box-shadow:0 0 0 1000px #20344d inset!important;transition:background-color 9999s ease-in-out 0s}
+.buttons{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:15px}
+.buttons button{height:42px;width:100%;border:1px solid rgba(255,255,255,.13);border-radius:10px;color:#fff;font-size:12px;font-weight:700;letter-spacing:.1px;cursor:pointer;box-shadow:0 4px 10px rgba(0,0,0,.15),inset 0 1px rgba(255,255,255,.13);transition:transform .18s,filter .18s,box-shadow .18s}
+.buttons button:hover:not(:disabled){filter:brightness(1.14);transform:translateY(-2px);box-shadow:0 7px 14px rgba(0,0,0,.22)}
+.buttons button:active:not(:disabled){transform:scale(.97)}
+.buttons button:disabled{opacity:.42;cursor:not-allowed}
+.add{background:linear-gradient(135deg,#247d83,#17636e)}
+.save{background:linear-gradient(135deg,#39865d,#236a49)}
+.next{background:linear-gradient(135deg,#426eaa,#31548b)}
+.previous{background:linear-gradient(135deg,#7761a8,#594786)}
+.delete{background:linear-gradient(135deg,#a74d59,#813943)}
+.close{background:linear-gradient(135deg,#64748b,#465467)}
+#message{min-height:20px;margin-top:12px;font-size:12px;font-weight:600;color:#d9e8f0;line-height:1.5;overflow-wrap:anywhere}
+#message.error{color:#ffaaaa}
+#message.success{color:#a9e7c3}
 @media(max-width:480px){
-.user-container{padding:12px 10px;border-radius:25px}
-.user-card{padding:16px 15px 17px;border-radius:22px}
-h2{font-size:25px;margin-bottom:11px}
-.input-group{height:46px;margin-bottom:6px}
-.input-group input{font-size:15px;padding:0 10px}
-.buttons{gap:6px}
-.buttons button{height:42px;font-size:11px}
-#message{font-size:12px}
+body{padding:8px}
+.user-container{padding:10px;border-radius:20px}
+.user-card{padding:17px 14px 13px;border-radius:16px}
+h2{font-size:24px;margin-bottom:13px}
+.fields{gap:7px}
+.input-group{height:43px;padding:0 10px}
+.input-group input{font-size:14px;padding:0 9px}
+.buttons{gap:6px;margin-top:12px}
+.buttons button{height:39px;font-size:10px}
+#message{font-size:11px;margin-top:9px}
 }
 @media(max-height:600px){
-.user-container{padding:8px 12px}
+.user-container{padding:8px}
 .user-card{padding:10px 24px}
-h2{font-size:24px;margin-bottom:8px}
-.input-group{height:40px;margin-bottom:4px}
-.buttons{gap:5px;margin-top:2px}
-.buttons button{height:38px}
-#message{margin-top:5px;min-height:17px}
+h2{font-size:22px;margin-bottom:8px}
+.fields{gap:5px}
+.input-group{height:37px}
+.buttons{gap:5px;margin-top:9px}
+.buttons button{height:34px}
+#message{margin-top:6px;min-height:16px}
 }
 </style>
 </head>
@@ -77,12 +83,12 @@ h2{font-size:24px;margin-bottom:8px}
 </div>
 </div>
 <div class="buttons">
-<button class="add" onclick="addNew()" disabled>➕ Add New</button>
-<button class="save" onclick="saveUser()" disabled>💾 Save/Edit</button>
-<button class="next" onclick="nextRecord()" disabled>⏭ Next Rec</button>
-<button class="previous" onclick="previousRecord()" disabled>⏮ Previous</button>
-<button class="delete" onclick="deleteUser()" disabled>🗑 Delete</button>
-<button class="close" onclick="closeForm()">✖ Close</button>
+<button id="addBtn" class="add" type="button" onclick="addNew()" disabled>➕ Add New</button>
+<button id="saveBtn" class="save" type="button" onclick="saveUser()" disabled>💾 Save/Edit</button>
+<button id="nextBtn" class="next" type="button" onclick="nextRecord()" disabled>⏭ Next Rec</button>
+<button id="previousBtn" class="previous" type="button" onclick="previousRecord()" disabled>⏮ Previous</button>
+<button id="deleteBtn" class="delete" type="button" onclick="deleteUser()" disabled>🗑 Delete</button>
+<button class="close" type="button" onclick="closeForm()">✖ Close</button>
 </div>
 <p id="message">Connecting to cloud...</p>
 </section>
@@ -97,19 +103,20 @@ let currentUid=null;
 let ready=false;
 let busy=false;
 const el=id=>document.getElementById(id);
-function showMessage(message,error=false){
+function showMessage(message,type=""){
 el("message").textContent=message;
-el("message").style.color=error?"#ffb3b3":"#ffffff";
-}
-function setButtons(enabled){
-document.querySelectorAll(".buttons button:not(.close)").forEach(b=>b.disabled=!enabled||busy);
-}
-function setBusy(value){
-busy=value;
-setButtons(ready);
+el("message").className=type;
 }
 function adminToken(){
 return sessionStorage.getItem("firebaseIdToken")||"";
+}
+function setButtons(){
+const enabled=ready&&!busy;
+["addBtn","saveBtn","nextBtn","previousBtn","deleteBtn"].forEach(id=>el(id).disabled=!enabled);
+}
+function setBusy(value){
+busy=value;
+setButtons();
 }
 async function request(path,data={}){
 const token=adminToken();
@@ -118,7 +125,8 @@ const controller=new AbortController();
 const timer=setTimeout(()=>controller.abort(),REQUEST_TIMEOUT);
 try{
 const response=await fetch(WORKER_URL+path,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...data,adminToken:token}),signal:controller.signal,cache:"no-store"});
-const result=await response.json();
+let result;
+try{result=await response.json();}catch(e){throw new Error("Invalid response received from cloud.");}
 if(!response.ok||!result.success)throw new Error(result.message||"Cloud request failed.");
 return result;
 }catch(e){
@@ -130,8 +138,8 @@ function nextId(){
 const adminId=Number(sessionStorage.getItem("currentUserId"))||1;
 return users.reduce((max,u)=>Math.max(max,Number(u.userid)||0),adminId)+1;
 }
-function clearFields(message="",id=null){
-el("userid").value=id===null?nextId():id;
+function clearFields(message=""){
+el("userid").value=nextId();
 el("username").value="";
 el("email").value="";
 el("userpassword").value="";
@@ -145,94 +153,116 @@ const user=users[index];
 currentIndex=index;
 currentUid=user.uid;
 el("userid").value=user.userid;
-el("username").value=user.username;
-el("email").value=user.email;
+el("username").value=user.username||"";
+el("email").value=user.email||"";
 el("userpassword").value="";
-showMessage("User record loaded.");
-el("username").focus();
+showMessage("User record loaded.","success");
 return true;
 }
 async function loadUsers(selectUid=null){
 const result=await request("/list-users");
-users=(result.users||[]).sort((a,b)=>Number(a.userid)-Number(b.userid));
+users=Array.isArray(result.users)?result.users:[];
+users.sort((a,b)=>(Number(a.userid)||0)-(Number(b.userid)||0));
 if(selectUid){
 const index=users.findIndex(u=>u.uid===selectUid);
-if(index>=0){showRecord(index);return;}
+if(index>=0){
+showRecord(index);
+return;
+}
 }
 clearFields(users.length?"Ready for a new user.":"No users found. Ready to add a new user.");
 }
 function addNew(){
 if(!ready||busy)return;
-clearFields("Ready for a new user.");
+clearFields("New user form is ready.","success");
+el("username").focus();
 }
-async function saveUser(){
-if(!ready||busy)return;
+function validateUser(){
 const username=el("username").value.trim();
 const email=el("email").value.trim();
 const password=el("userpassword").value;
 const userid=Number(el("userid").value);
-if(!username)return showMessage("Please enter a username.",true);
-if(!email)return showMessage("Please enter an email address.",true);
-if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return showMessage("Please enter a valid email address.",true);
-if(!currentUid&&password.length<6)return showMessage("Password must contain at least 6 characters.",true);
-if(password&&password.length<6)return showMessage("Password must contain at least 6 characters.",true);
-if(!Number.isInteger(userid)||userid<1)return showMessage("Invalid User ID.",true);
+if(!username)throw new Error("Please enter a username.");
+if(!email)throw new Error("Please enter an email address.");
+if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))throw new Error("Please enter a valid email address.");
+if(!currentUid&&password.length<6)throw new Error("Password must contain at least 6 characters.");
+if(password&&password.length<6)throw new Error("Password must contain at least 6 characters.");
+if(!Number.isInteger(userid)||userid<1)throw new Error("Invalid User ID.");
+return {username,email,password,userid};
+}
+async function saveUser(){
+if(!ready||busy)return;
+let data;
+try{data=validateUser();}catch(e){showMessage(e.message,"error");return;}
 setBusy(true);
-showMessage("Saving user...");
+showMessage(currentUid?"Updating user...":"Creating new user...");
 try{
 let result;
 if(currentUid){
-result=await request("/update-user",{uid:currentUid,username,email,password});
+const payload={uid:currentUid,username:data.username,email:data.email};
+if(data.password)payload.password=data.password;
+result=await request("/update-user",payload);
 }else{
-result=await request("/create-user",{userid,username,email,password});
+result=await request("/create-user",{userid:data.userid,username:data.username,email:data.email,password:data.password});
 }
 await loadUsers(result.uid||currentUid);
-showMessage(result.message||"User saved successfully.");
-}catch(e){showMessage(e.message||"Unable to save user.",true);}
-finally{setBusy(false);}
+showMessage(result.message||"User saved successfully.","success");
+}catch(e){
+showMessage(e.message||"Unable to save user.","error");
+}finally{setBusy(false);}
 }
 function nextRecord(){
 if(!ready||busy)return;
-if(!users.length)return clearFields("No user records found.");
-if(currentIndex<0||currentIndex>=users.length-1)return showMessage("Last record reached.");
+if(!users.length){showMessage("No user records found.","error");return;}
+if(currentIndex<0){showRecord(0);return;}
+if(currentIndex>=users.length-1){showMessage("Last record reached.");return;}
 showRecord(currentIndex+1);
 }
 function previousRecord(){
 if(!ready||busy)return;
-if(!users.length)return clearFields("No user records found.");
-if(currentIndex<=0)return showMessage("First record reached.");
+if(!users.length){showMessage("No user records found.","error");return;}
+if(currentIndex<0){showRecord(users.length-1);return;}
+if(currentIndex===0){showMessage("First record reached.");return;}
 showRecord(currentIndex-1);
 }
 async function deleteUser(){
 if(!ready||busy)return;
-if(!currentUid)return showMessage("Please select a user first.",true);
+if(!currentUid){showMessage("Please select a user first.","error");return;}
+const selectedUid=currentUid;
+const selectedIndex=currentIndex;
 if(!confirm("Are you sure you want to delete this user?"))return;
-const deletedUid=currentUid;
 setBusy(true);
 showMessage("Deleting user...");
 try{
-const result=await request("/delete-user",{uid:deletedUid});
+const result=await request("/delete-user",{uid:selectedUid});
 await loadUsers();
-showMessage(result.message||"User deleted successfully.");
-}catch(e){showMessage(e.message||"Delete failed.",true);}
-finally{setBusy(false);}
+if(users.length)showRecord(Math.min(selectedIndex,users.length-1));
+else clearFields("No user records remain.");
+showMessage(result.message||"User deleted successfully.","success");
+}catch(e){
+showMessage(e.message||"Delete failed.","error");
+}finally{setBusy(false);}
 }
 function closeForm(){
+try{
+if(window.parent&&window.parent!==window){
 const panel=window.parent.document.getElementById("MainPanel");
-if(panel)panel.innerHTML="";
-else window.close();
+if(panel){panel.innerHTML="";return;}
+}
+}catch(e){}
+window.close();
 }
 async function startForm(){
 try{
 if(!adminToken())throw new Error("Administrator session expired. Please login again.");
 await loadUsers();
 ready=true;
-setButtons(true);
-showMessage("Cloud connection successful.");
+setButtons();
+showMessage("Cloud connection successful.","success");
 }catch(e){
 ready=false;
-setButtons(false);
-showMessage(e.message||"Unable to connect to cloud.",true);
+setButtons();
+showMessage(e.message||"Unable to connect to cloud.","error");
 }
 }
 startForm();
