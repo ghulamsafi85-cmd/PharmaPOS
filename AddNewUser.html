@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Add New User</title>
+<title>New User Registration</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,Helvetica,sans-serif}
 html,body{width:100%;height:100%;overflow:hidden}
@@ -13,15 +13,16 @@ body{display:flex;align-items:center;justify-content:center;padding:12px;backgro
 .user-container{padding:25px 30px}
 .user-card{width:100%;max-width:440px;margin:auto}
 h2{font-size:23px;font-weight:600;color:#254b68;text-align:center;margin-bottom:22px;padding-bottom:14px;border-bottom:1px solid #e5ebf0}
-.fields{display:flex;flex-direction:column;gap:11px}
-.input-group{height:43px;width:100%;display:flex;align-items:center;padding:0 12px;background:#f8fafc;border:1px solid #d5dee7;border-radius:6px;transition:border-color .15s,background .15s}
+.fields{display:flex;flex-direction:column;gap:7px}
+.input-group{height:49px;width:100%;display:flex;align-items:center;padding:0 12px;background:#f8fafc;border:1px solid #d5dee7;border-radius:6px;transition:border-color .15s,background .15s}
 .input-group:focus-within{border-color:#5488b4;background:#fff}
 .input-group>svg{width:19px;height:19px;fill:none;stroke:#6b8297;stroke-width:1.7;flex-shrink:0}
 .input-group input{flex:1;min-width:0;width:100%;height:100%;border:0!important;outline:0!important;box-shadow:none!important;background:transparent!important;color:#263b50!important;-webkit-text-fill-color:#263b50!important;font-size:14px;padding:0 12px;text-align:center}
 .input-group input::placeholder{color:#8999a9;-webkit-text-fill-color:#8999a9}
 .input-group input:read-only{color:#315f83!important;-webkit-text-fill-color:#315f83!important;font-weight:600}
-.buttons{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:19px}
-.buttons button{height:39px;width:100%;border:1px solid transparent;border-radius:5px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;transition:background .15s,border-color .15s,transform .1s}
+.buttons{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:10px}
+.buttons button{height:45px;width:100%;display:flex;align-items:center;justify-content:center;gap:6px;border:1px solid transparent;border-radius:5px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;transition:background .15s,border-color .15s,transform .1s}
+.buttons button svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
 .buttons button:hover{filter:brightness(1.08)}
 .buttons button:active{transform:scale(.98)}
 .buttons button:disabled{opacity:.55;cursor:wait}
@@ -36,18 +37,19 @@ h2{font-size:23px;font-weight:600;color:#254b68;text-align:center;margin-bottom:
 body{padding:8px}
 .user-container{padding:19px 15px}
 h2{font-size:21px;margin-bottom:16px}
-.fields{gap:8px}
-.input-group{height:41px}
-.buttons{gap:6px;margin-top:14px}
-.buttons button{height:37px;font-size:10px}
+.fields{gap:6px}
+.input-group{height:46px}
+.buttons{gap:6px;margin-top:9px}
+.buttons button{height:42px;font-size:10px;gap:4px}
+.buttons button svg{width:14px;height:14px}
 }
 @media(max-height:520px){
 .user-container{padding:10px 20px}
 h2{font-size:20px;margin-bottom:9px;padding-bottom:8px}
 .fields{gap:5px}
-.input-group{height:34px}
-.buttons{gap:5px;margin-top:9px}
-.buttons button{height:32px}
+.input-group{height:38px}
+.buttons{gap:5px;margin-top:8px}
+.buttons button{height:34px}
 }
 </style>
 </head>
@@ -75,12 +77,12 @@ h2{font-size:20px;margin-bottom:9px;padding-bottom:8px}
 </div>
 </div>
 <div class="buttons">
-<button id="addBtn" class="add" type="button" onclick="addNew()">Add New</button>
-<button id="saveBtn" class="save" type="button" onclick="saveUser()">Save/Edit</button>
-<button id="nextBtn" class="next" type="button" onclick="nextRecord()">Next Rec</button>
-<button id="previousBtn" class="previous" type="button" onclick="previousRecord()">Previous</button>
-<button id="deleteBtn" class="delete" type="button" onclick="deleteUser()">Delete</button>
-<button id="closeBtn" class="close" type="button" onclick="closeForm()">Close</button>
+<button id="addBtn" class="add" type="button" onclick="addNew()"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add New</button>
+<button id="saveBtn" class="save" type="button" onclick="saveUser()"><svg viewBox="0 0 24 24"><path d="M5 3h12l4 4v14H3V3z"/><path d="M7 3v7h10V3M7 21v-7h10v7"/></svg>Save/Edit</button>
+<button id="nextBtn" class="next" type="button" onclick="nextRecord()"><svg viewBox="0 0 24 24"><path d="M4 12h15M13 5l7 7-7 7"/></svg>Next Rec</button>
+<button id="previousBtn" class="previous" type="button" onclick="previousRecord()"><svg viewBox="0 0 24 24"><path d="M20 12H5M11 5l-7 7 7 7"/></svg>Previous</button>
+<button id="deleteBtn" class="delete" type="button" onclick="deleteUser()"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 15H6L5 6M10 11v6M14 11v6"/></svg>Delete</button>
+<button id="closeBtn" class="close" type="button" onclick="closeForm()"><svg viewBox="0 0 24 24"><path d="m18 6-12 12M6 6l12 12"/></svg>Close</button>
 </div>
 <p id="message"></p>
 </section>
