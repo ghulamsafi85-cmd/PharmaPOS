@@ -50,6 +50,30 @@ body{font-family:Arial,sans-serif;background:linear-gradient(135deg,#071b32,#123
 .action-delete{background:#b52b3a}
 .action-button:hover{filter:brightness(1.2)}
 .admin-message{padding:15px;text-align:center;color:#ffe0a3}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,10,22,.76);backdrop-filter:blur(7px);display:none;align-items:center;justify-content:center;padding:15px;z-index:1000}
+.modal-overlay.show{display:flex}
+.modal-box{width:100%;max-width:430px;background:linear-gradient(145deg,#123b5c,#08243e);border:1px solid rgba(255,255,255,.25);border-radius:17px;box-shadow:0 20px 65px rgba(0,0,0,.55);overflow:hidden;animation:modalIn .22s ease}
+@keyframes modalIn{from{opacity:0;transform:translateY(15px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:17px 20px;background:rgba(255,255,255,.08);border-bottom:1px solid rgba(255,255,255,.13)}
+.modal-title{margin:0;color:#ffbd59;font-size:19px;font-weight:bold}
+.modal-close{width:30px;height:30px;border:1px solid rgba(255,255,255,.2);border-radius:8px;background:rgba(255,255,255,.1);color:#fff;font-size:20px;cursor:pointer}
+.modal-body{padding:22px 20px;color:#eaf5ff}
+.modal-description{font-size:13px;line-height:1.6;color:#c7dbea;margin:0 0 16px}
+.modal-label{display:block;font-size:12px;color:#ffcf83;margin:12px 0 6px;font-weight:bold}
+.modal-input{width:100%;height:42px;padding:0 12px;border:1px solid rgba(255,255,255,.25);border-radius:8px;background:rgba(255,255,255,.09);color:#fff;font-size:14px;outline:none}
+.modal-input:focus{border-color:#ffb547;box-shadow:0 0 0 3px rgba(255,181,71,.12)}
+.modal-input::placeholder{color:#a9bdcf}
+.modal-footer{display:flex;justify-content:flex-end;gap:9px;padding:14px 20px 18px;border-top:1px solid rgba(255,255,255,.12)}
+.modal-btn{min-width:95px;padding:10px 15px;border:1px solid rgba(255,255,255,.2);border-radius:8px;color:white;font-size:13px;font-weight:bold;cursor:pointer;transition:.2s}
+.modal-btn:hover{filter:brightness(1.15);transform:translateY(-1px)}
+.modal-cancel{background:rgba(255,255,255,.12)}
+.modal-primary{background:linear-gradient(135deg,#087e8b,#1769aa)}
+.modal-danger{background:linear-gradient(135deg,#b52b3a,#8e1d2a)}
+.modal-success{background:linear-gradient(135deg,#16845a,#087e8b)}
+.modal-icon{width:48px;height:48px;margin:0 auto 13px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,181,71,.15);border:1px solid rgba(255,181,71,.35);color:#ffbd59;font-size:25px}
+.modal-message{text-align:center;font-size:14px;line-height:1.7;color:#eaf5ff;overflow-wrap:anywhere}
+.modal-error{color:#ffb3ba;font-size:12px;margin-top:10px;display:none}
+.modal-error.show{display:block}
 @media(max-width:600px){
 .header{font-size:19px;padding:0 12px;gap:12px}
 .sidebar{width:165px;padding:8px;border-radius:10px;left:5px;top:5px;bottom:5px}
@@ -58,6 +82,8 @@ body{font-family:Arial,sans-serif;background:linear-gradient(135deg,#071b32,#123
 .sub-button{margin-bottom:5px}
 .admin-page{padding:12px}
 .admin-heading h2{font-size:19px}
+.modal-box{max-width:390px}
+.modal-body{padding:18px 16px}
 }
 </style>
 </head>
@@ -80,6 +106,16 @@ body{font-family:Arial,sans-serif;background:linear-gradient(135deg,#071b32,#123
 <button class="sub-button" onclick="openForm('AddNewProduct.html')">📦 Add New Product</button>
 </aside>
 <main class="main-panel" id="MainPanel"></main>
+</div>
+<div class="modal-overlay" id="appModal" onclick="modalBackdrop(event)">
+<div class="modal-box">
+<div class="modal-header">
+<h3 class="modal-title" id="modalTitle">PharmaPOS</h3>
+<button class="modal-close" onclick="closeModal()" aria-label="Close">×</button>
+</div>
+<div class="modal-body" id="modalBody"></div>
+<div class="modal-footer" id="modalFooter"></div>
+</div>
 </div>
 <script>
 const WORKER_BASE="https://young-river-e88c.ghulam-safi85.workers.dev";
@@ -121,9 +157,29 @@ document.getElementById("sidebar").classList.remove("show");
 document.getElementById("masterButton").classList.remove("active");
 document.getElementById("masterArrow").textContent="›";
 }
+function openModal(title,body,buttons){
+document.getElementById("modalTitle").textContent=title;
+document.getElementById("modalBody").innerHTML=body;
+document.getElementById("modalFooter").innerHTML=buttons;
+document.getElementById("appModal").classList.add("show");
+}
+function closeModal(){
+document.getElementById("appModal").classList.remove("show");
+}
+function modalBackdrop(event){
+if(event.target.id==="appModal")closeModal();
+}
+function showMessage(title,message,type){
+const icon=type==="error"?"!":type==="success"?"✓":"i";
+openModal(title,'<div class="modal-icon">'+icon+'</div><div class="modal-message">'+escapeHtml(message)+'</div>','<button class="modal-btn modal-success" onclick="closeModal()">OK</button>');
+}
+function showConfirm(title,message,action,danger){
+const btnClass=danger?"modal-danger":"modal-primary";
+openModal(title,'<div class="modal-icon">?</div><div class="modal-message">'+escapeHtml(message)+'</div>','<button class="modal-btn modal-cancel" onclick="closeModal()">Cancel</button><button class="modal-btn '+btnClass+'" id="modalConfirmBtn">Confirm</button>');
+document.getElementById("modalConfirmBtn").onclick=()=>{closeModal();action();};
+}
 function logout(){
-if(!confirm("Are you sure you want to logout?"))return;
-forceLocalLogout();
+showConfirm("Logout","Are you sure you want to logout?",forceLocalLogout,true);
 }
 function forceLocalLogout(){
 sessionStorage.clear();
@@ -177,59 +233,120 @@ target.innerHTML='<tr><td colspan="5" class="admin-message">No users found.</td>
 return;
 }
 target.innerHTML=data.users.map(user=>{
-const uid=escapeHtml(user.uid);
 const status=user.online?'<span class="status online">● Online</span>':'<span class="status offline">● Offline</span>';
-return '<tr><td>'+escapeHtml(user.userid)+'</td><td>'+escapeHtml(user.username)+'</td><td>'+escapeHtml(user.email)+'</td><td>'+status+'</td><td><div class="action-buttons"><button class="action-button action-edit" onclick="editUser(\''+uid+'\')">Edit</button><button class="action-button action-password" onclick="changeUserPassword(\''+uid+'\')">Password</button><button class="action-button action-logout" onclick="remoteLogoutUser(\''+uid+'\',\''+escapeHtml(user.username)+'\')">Logout</button><button class="action-button action-delete" onclick="deleteUser(\''+uid+'\',\''+escapeHtml(user.username)+'\')">Delete</button></div></td></tr>';
+return '<tr><td>'+escapeHtml(user.userid)+'</td><td>'+escapeHtml(user.username)+'</td><td>'+escapeHtml(user.email)+'</td><td>'+status+'</td><td><div class="action-buttons"><button class="action-button action-edit" data-action="edit" data-uid="'+escapeHtml(user.uid)+'">Edit</button><button class="action-button action-password" data-action="password" data-uid="'+escapeHtml(user.uid)+'">Password</button><button class="action-button action-logout" data-action="logout" data-uid="'+escapeHtml(user.uid)+'" data-username="'+escapeHtml(user.username)+'">Logout</button><button class="action-button action-delete" data-action="delete" data-uid="'+escapeHtml(user.uid)+'" data-username="'+escapeHtml(user.username)+'">Delete</button></div></td></tr>';
 }).join("");
 }catch(error){
 if(document.getElementById("adminUsersBody"))document.getElementById("adminUsersBody").innerHTML='<tr><td colspan="5" class="admin-message">'+escapeHtml(error.message)+'</td></tr>';
 }
 }
-async function editUser(uid){
-const data=await getUserForEdit(uid);
-if(!data)return;
-const username=prompt("Enter new username:",data.username);
-if(username===null)return;
-const email=prompt("Enter new email:",data.email);
-if(email===null)return;
-try{
-const result=await workerRequest("/update-user",{adminToken:idToken,uid,username:username.trim(),email:email.trim(),password:""});
-alert(result.message||"User updated successfully.");
-loadAdminUsers();
-}catch(error){alert(error.message);}
-}
+document.addEventListener("click",event=>{
+const button=event.target.closest("[data-action]");
+if(!button)return;
+const action=button.dataset.action;
+const uid=button.dataset.uid;
+const username=button.dataset.username||"";
+if(action==="edit")editUser(uid);
+if(action==="password")changeUserPassword(uid);
+if(action==="logout")remoteLogoutUser(uid,username);
+if(action==="delete")deleteUser(uid,username);
+});
 async function getUserForEdit(uid){
 try{
 const data=await workerRequest("/list-users",{adminToken:idToken});
 return (data.users||[]).find(user=>user.uid===uid)||null;
-}catch(error){alert(error.message);return null;}
+}catch(error){
+showMessage("Request Failed",error.message,"error");
+return null;
 }
-async function changeUserPassword(uid){
-const password=prompt("Enter the new password (minimum 6 characters):");
-if(password===null)return;
-if(password.length<6||password.length>256){alert("Password must contain between 6 and 256 characters.");return;}
-try{
+}
+async function editUser(uid){
 const data=await getUserForEdit(uid);
 if(!data)return;
+openModal("Edit User",'<p class="modal-description">Update the username and email address of this user.</p><label class="modal-label">Username</label><input class="modal-input" id="editUsername" maxlength="250" value="'+escapeHtml(data.username)+'"><label class="modal-label">Email Address</label><input class="modal-input" id="editEmail" type="email" maxlength="250" value="'+escapeHtml(data.email)+'"><div class="modal-error" id="modalError"></div>','<button class="modal-btn modal-cancel" onclick="closeModal()">Cancel</button><button class="modal-btn modal-primary" id="saveUserBtn">Save Changes</button>');
+document.getElementById("saveUserBtn").onclick=saveUserChanges.bind(null,uid);
+document.getElementById("editUsername").focus();
+}
+async function saveUserChanges(uid){
+const username=document.getElementById("editUsername").value.trim();
+const email=document.getElementById("editEmail").value.trim();
+if(!username||!email||!email.includes("@")){
+showModalError("Please enter a valid username and email address.");
+return;
+}
+const button=document.getElementById("saveUserBtn");
+button.disabled=true;
+button.textContent="Saving...";
+try{
+const result=await workerRequest("/update-user",{adminToken:idToken,uid,username,email,password:""});
+closeModal();
+showMessage("User Updated",result.message||"User information updated successfully.","success");
+loadAdminUsers();
+}catch(error){
+button.disabled=false;
+button.textContent="Save Changes";
+showModalError(error.message);
+}
+}
+function showModalError(message){
+const element=document.getElementById("modalError");
+if(element){
+element.textContent=message;
+element.classList.add("show");
+}
+}
+async function changeUserPassword(uid){
+openModal("Change Password",'<p class="modal-description">Enter a new password for this user. The password must contain at least 6 characters.</p><label class="modal-label">New Password</label><input class="modal-input" id="newUserPassword" type="password" maxlength="256" placeholder="Enter new password"><label class="modal-label">Confirm Password</label><input class="modal-input" id="confirmUserPassword" type="password" maxlength="256" placeholder="Confirm new password"><div class="modal-error" id="modalError"></div>','<button class="modal-btn modal-cancel" onclick="closeModal()">Cancel</button><button class="modal-btn modal-primary" id="savePasswordBtn">Update Password</button>');
+document.getElementById("savePasswordBtn").onclick=saveUserPassword.bind(null,uid);
+document.getElementById("newUserPassword").focus();
+}
+async function saveUserPassword(uid){
+const password=document.getElementById("newUserPassword").value;
+const confirmPassword=document.getElementById("confirmUserPassword").value;
+if(password.length<6||password.length>256){
+showModalError("Password must contain between 6 and 256 characters.");
+return;
+}
+if(password!==confirmPassword){
+showModalError("The passwords do not match.");
+return;
+}
+const button=document.getElementById("savePasswordBtn");
+button.disabled=true;
+button.textContent="Updating...";
+try{
+const data=await getUserForEdit(uid);
+if(!data){button.disabled=false;button.textContent="Update Password";return;}
 const result=await workerRequest("/update-user",{adminToken:idToken,uid,username:data.username,email:data.email,password});
-alert(result.message||"Password changed successfully.");
-}catch(error){alert(error.message);}
+closeModal();
+showMessage("Password Updated",result.message||"Password changed successfully.","success");
+}catch(error){
+button.disabled=false;
+button.textContent="Update Password";
+showModalError(error.message);
+}
 }
 async function remoteLogoutUser(uid,username){
-if(!confirm("Are you sure you want to remotely logout "+username+" from all active sessions?"))return;
+showConfirm("Remote Logout","Are you sure you want to remotely logout "+username+" from all active sessions?",async()=>{
 try{
 const result=await workerRequest("/logout-user",{adminToken:idToken,uid});
-alert(result.message||"User sessions have been revoked.");
+showMessage("Remote Logout",result.message||"User sessions have been revoked.","success");
 loadAdminUsers();
-}catch(error){alert(error.message);}
+}catch(error){
+showMessage("Logout Failed",error.message,"error");
+}
+},false);
 }
 async function deleteUser(uid,username){
-if(!confirm("Are you sure you want to permanently delete user "+username+"?"))return;
+showConfirm("Delete User","Are you sure you want to permanently delete user "+username+"? This action cannot be undone.",async()=>{
 try{
 const result=await workerRequest("/delete-user",{adminToken:idToken,uid});
-alert(result.message||"User deleted successfully.");
+showMessage("User Deleted",result.message||"User deleted successfully.","success");
 loadAdminUsers();
-}catch(error){alert(error.message);}
+}catch(error){
+showMessage("Delete Failed",error.message,"error");
+}
+},true);
 }
 function initializeDashboard(){
 if(!currentUid||!idToken||!sessionVersion||!currentUsername||!currentRole){
@@ -242,6 +359,9 @@ showAdminPage();
 }
 }
 document.addEventListener("DOMContentLoaded",initializeDashboard);
+document.addEventListener("keydown",event=>{
+if(event.key==="Escape")closeModal();
+});
 window.addEventListener("beforeunload",()=>{
 if(adminRefreshTimer)clearInterval(adminRefreshTimer);
 if(heartbeatTimer)clearInterval(heartbeatTimer);
