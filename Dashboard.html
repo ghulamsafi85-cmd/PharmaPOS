@@ -24,14 +24,39 @@ body{font-family:Arial,sans-serif;background:linear-gradient(135deg,#071b32,#123
 .sub-button{width:100%;padding:13px 8px;margin-bottom:7px;background:rgba(18,62,98,.55);color:#ffb547;border:1px solid rgba(255,255,255,.2);border-radius:9px;text-align:left;font-size:14px;font-weight:bold;cursor:pointer;transition:.25s;backdrop-filter:blur(10px)}
 .sub-button:last-child{margin-bottom:0}
 .sub-button:hover{background:rgba(8,126,139,.75);color:white;border-color:#ffb547;transform:translateX(3px);box-shadow:0 4px 14px rgba(0,0,0,.15)}
-.main-panel{display:block;flex:1;width:100%;min-width:0;height:100%;margin:0;padding:0;border:0;border-radius:0;overflow:hidden;background:transparent}
+.main-panel{display:block;flex:1;width:100%;min-width:0;height:100%;margin:0;padding:0;border:0;border-radius:0;overflow:auto;background:transparent}
 .main-panel iframe{display:block;width:100%;height:100%;min-height:0;border:0;border-radius:0;background:transparent}
+.admin-page{width:100%;min-height:100%;padding:22px;color:#fff}
+.admin-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.admin-heading h2{margin:0;color:#ffb547;font-size:23px}
+.admin-refresh{padding:10px 16px;border:1px solid rgba(255,255,255,.3);border-radius:8px;background:rgba(255,255,255,.13);color:#fff;font-weight:bold;cursor:pointer}
+.admin-refresh:hover{background:rgba(255,255,255,.23)}
+.admin-info{font-size:13px;color:#d9edf7;margin:0 0 14px}
+.admin-table-wrap{width:100%;overflow:auto;border:1px solid rgba(255,255,255,.22);border-radius:10px;background:rgba(4,24,43,.35)}
+.admin-table{width:100%;border-collapse:collapse;min-width:850px}
+.admin-table th,.admin-table td{padding:12px 10px;text-align:left;border-bottom:1px solid rgba(255,255,255,.15);font-size:13px}
+.admin-table th{background:rgba(255,181,71,.16);color:#ffca78;white-space:nowrap}
+.admin-table tr:last-child td{border-bottom:0}
+.admin-table tbody tr:hover{background:rgba(255,255,255,.07)}
+.status{display:inline-block;padding:5px 9px;border-radius:20px;font-size:11px;font-weight:bold}
+.status.online{background:rgba(25,135,84,.25);color:#8ff0bd;border:1px solid rgba(90,220,155,.4)}
+.status.offline{background:rgba(220,53,69,.2);color:#ffb3ba;border:1px solid rgba(255,120,130,.35)}
+.action-buttons{display:flex;gap:5px;flex-wrap:wrap}
+.action-button{padding:7px 9px;border:1px solid rgba(255,255,255,.2);border-radius:6px;color:#fff;font-size:11px;font-weight:bold;cursor:pointer;white-space:nowrap}
+.action-edit{background:#1769aa}
+.action-password{background:#7952a3}
+.action-logout{background:#b7791f}
+.action-delete{background:#b52b3a}
+.action-button:hover{filter:brightness(1.2)}
+.admin-message{padding:15px;text-align:center;color:#ffe0a3}
 @media(max-width:600px){
 .header{font-size:19px;padding:0 12px;gap:12px}
 .sidebar{width:165px;padding:8px;border-radius:10px;left:5px;top:5px;bottom:5px}
 .submenu{width:180px;padding:8px;border-radius:10px;left:175px;top:5px}
 .menu-button,.sub-button,.logout-button{font-size:12px;padding:12px 5px}
 .sub-button{margin-bottom:5px}
+.admin-page{padding:12px}
+.admin-heading h2{font-size:19px}
 }
 </style>
 </head>
@@ -56,6 +81,16 @@ body{font-family:Arial,sans-serif;background:linear-gradient(135deg,#071b32,#123
 <main class="main-panel" id="MainPanel"></main>
 </div>
 <script>
+const WORKER_BASE="https://young-river-e88c.ghulam-safi85.workers.dev";
+const LOGIN_URL="https://ghulamsafi85-cmd.github.io/PharmaPOS/Login/Login.html";
+const currentUid=sessionStorage.getItem("firebaseUid")||"";
+const currentUsername=sessionStorage.getItem("currentUsername")||"";
+const currentRole=(sessionStorage.getItem("currentUserRole")||"").toLowerCase();
+const idToken=sessionStorage.getItem("firebaseIdToken")||"";
+const sessionVersion=sessionStorage.getItem("sessionVersion")||"";
+let adminRefreshTimer=null;
+let heartbeatTimer=null;
+let heartbeatBusy=false;
 function toggleSidebar(){
 const sidebar=document.getElementById("sidebar");
 const submenu=document.getElementById("masterSubMenu");
@@ -87,10 +122,129 @@ document.getElementById("masterArrow").textContent="›";
 }
 function logout(){
 if(!confirm("Are you sure you want to logout?"))return;
-sessionStorage.removeItem("currentUserId");
-sessionStorage.removeItem("currentUsername");
-window.location.replace("https://ghulamsafi85-cmd.github.io/PharmaPOS/Login/Login.html");
+forceLocalLogout();
 }
+function forceLocalLogout(){
+sessionStorage.clear();
+window.location.replace(LOGIN_URL);
+}
+async function workerRequest(path,payload){
+const response=await fetch(WORKER_BASE+path,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload),cache:"no-store"});
+const data=await response.json().catch(()=>({}));
+if(!response.ok||!data.success){
+if(data.forceLogout)forceLocalLogout();
+throw new Error(data.message||"Request failed");
+}
+return data;
+}
+async function sendHeartbeat(){
+if(heartbeatBusy)return;
+heartbeatBusy=true;
+try{
+const response=await fetch(WORKER_BASE+"/heartbeat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({idToken,uid:currentUid,sessionVersion}),cache:"no-store"});
+const data=await response.json().catch(()=>({}));
+if(data.forceLogout||response.status===401){forceLocalLogout();return;}
+}catch(error){
+console.warn("Session heartbeat failed:",error.message||error);
+}finally{
+heartbeatBusy=false;
+}
+}
+function startHeartbeat(){
+sendHeartbeat();
+heartbeatTimer=setInterval(sendHeartbeat,25000);
+}
+function escapeHtml(value){
+return String(value??"").replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char]));
+}
+function showAdminPage(){
+const panel=document.getElementById("MainPanel");
+panel.innerHTML='<section class="admin-page"><div class="admin-heading"><h2>Users Management</h2><button class="admin-refresh" onclick="loadAdminUsers()">↻ Refresh</button></div><p class="admin-info">Manage user accounts, passwords, active status and remote logout.</p><div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>User ID</th><th>Username</th><th>Email</th><th>Status</th><th>Actions</th></tr></thead><tbody id="adminUsersBody"><tr><td colspan="5" class="admin-message">Loading users...</td></tr></tbody></table></div></section>';
+loadAdminUsers();
+adminRefreshTimer=setInterval(loadAdminUsers,20000);
+}
+async function loadAdminUsers(){
+if(!(currentUsername.toLowerCase()==="admin"&&currentRole==="admin"))return;
+const body=document.getElementById("adminUsersBody");
+if(!body)return;
+try{
+const data=await workerRequest("/list-users",{adminToken:idToken});
+if(!document.getElementById("adminUsersBody"))return;
+const target=document.getElementById("adminUsersBody");
+if(!data.users||!data.users.length){
+target.innerHTML='<tr><td colspan="5" class="admin-message">No users found.</td></tr>';
+return;
+}
+target.innerHTML=data.users.map(user=>{
+const uid=escapeHtml(user.uid);
+const status=user.online?'<span class="status online">● Online</span>':'<span class="status offline">● Offline</span>';
+return '<tr><td>'+escapeHtml(user.userid)+'</td><td>'+escapeHtml(user.username)+'</td><td>'+escapeHtml(user.email)+'</td><td>'+status+'</td><td><div class="action-buttons"><button class="action-button action-edit" onclick="editUser(\''+uid+'\')">Edit</button><button class="action-button action-password" onclick="changeUserPassword(\''+uid+'\')">Password</button><button class="action-button action-logout" onclick="remoteLogoutUser(\''+uid+'\',\''+escapeHtml(user.username)+'\')">Logout</button><button class="action-button action-delete" onclick="deleteUser(\''+uid+'\',\''+escapeHtml(user.username)+'\')">Delete</button></div></td></tr>';
+}).join("");
+}catch(error){
+if(document.getElementById("adminUsersBody"))document.getElementById("adminUsersBody").innerHTML='<tr><td colspan="5" class="admin-message">'+escapeHtml(error.message)+'</td></tr>';
+}
+}
+async function editUser(uid){
+const data=await getUserForEdit(uid);
+if(!data)return;
+const username=prompt("Enter new username:",data.username);
+if(username===null)return;
+const email=prompt("Enter new email:",data.email);
+if(email===null)return;
+try{
+const result=await workerRequest("/update-user",{adminToken:idToken,uid,username:username.trim(),email:email.trim(),password:""});
+alert(result.message||"User updated successfully.");
+loadAdminUsers();
+}catch(error){alert(error.message);}
+}
+async function getUserForEdit(uid){
+try{
+const data=await workerRequest("/list-users",{adminToken:idToken});
+return (data.users||[]).find(user=>user.uid===uid)||null;
+}catch(error){alert(error.message);return null;}
+}
+async function changeUserPassword(uid){
+const password=prompt("Enter the new password (minimum 6 characters):");
+if(password===null)return;
+if(password.length<6||password.length>256){alert("Password must contain between 6 and 256 characters.");return;}
+try{
+const data=await getUserForEdit(uid);
+if(!data)return;
+const result=await workerRequest("/update-user",{adminToken:idToken,uid,username:data.username,email:data.email,password});
+alert(result.message||"Password changed successfully.");
+}catch(error){alert(error.message);}
+}
+async function remoteLogoutUser(uid,username){
+if(!confirm("Are you sure you want to remotely logout "+username+" from all active sessions?"))return;
+try{
+const result=await workerRequest("/logout-user",{adminToken:idToken,uid});
+alert(result.message||"User sessions have been revoked.");
+loadAdminUsers();
+}catch(error){alert(error.message);}
+}
+async function deleteUser(uid,username){
+if(!confirm("Are you sure you want to permanently delete user "+username+"?"))return;
+try{
+const result=await workerRequest("/delete-user",{adminToken:idToken,uid});
+alert(result.message||"User deleted successfully.");
+loadAdminUsers();
+}catch(error){alert(error.message);}
+}
+function initializeDashboard(){
+if(!currentUid||!idToken||!sessionVersion||!currentUsername||!currentRole){
+forceLocalLogout();
+return;
+}
+startHeartbeat();
+if(currentUsername.toLowerCase()==="admin"&&currentRole==="admin"){
+showAdminPage();
+}
+}
+document.addEventListener("DOMContentLoaded",initializeDashboard);
+window.addEventListener("beforeunload",()=>{
+if(adminRefreshTimer)clearInterval(adminRefreshTimer);
+if(heartbeatTimer)clearInterval(heartbeatTimer);
+});
 </script>
 </body>
 </html>
