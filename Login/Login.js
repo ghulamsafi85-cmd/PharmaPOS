@@ -91,6 +91,7 @@ headers:{"Content-Type":"application/json"},
 body:JSON.stringify({username,password})
 });
 if(!result.response.ok||!result.data.success)throw new Error(result.data.message||"Invalid username or password");
+if(!result.data.sessionVersion)throw new Error("Session initialization failed. Please contact your administrator.");
 return result.data;
 }
 async function getCloudUser(uid,idToken){
@@ -138,6 +139,7 @@ const auth=await firebaseLogin(username,password);
 const user=await getCloudUser(auth.localId,auth.idToken);
 if(!user.userid||!user.username)throw new Error("User profile is incomplete");
 if(user.role!=="admin"&&user.role!=="user")throw new Error("Your account has an invalid user role. Contact your administrator.");
+if(user.role==="admin"&&user.username.toLowerCase()!=="admin")throw new Error("Administrator account information is invalid. Contact your administrator.");
 clearFailedAttempts();
 if(rememberMe?.checked)localStorage.setItem(REMEMBER_KEY,username);
 else localStorage.removeItem(REMEMBER_KEY);
@@ -148,6 +150,7 @@ sessionStorage.setItem("firebaseUid",auth.localId);
 sessionStorage.setItem("firebaseIdToken",auth.idToken);
 sessionStorage.setItem("firebaseRefreshToken",auth.refreshToken);
 sessionStorage.setItem("firebaseTokenExpiry",String(Date.now()+Number(auth.expiresIn)*1000));
+sessionStorage.setItem("sessionVersion",String(auth.sessionVersion));
 window.location.replace("../Dashboard.html");
 }catch(error){
 if(error.message==="Invalid username or password")recordFailedAttempt();
